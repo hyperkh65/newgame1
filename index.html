@@ -2,129 +2,159 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>SNAPPLUG 3D - AGENTIC OS REPLICA</title>
+    <title>SNAPPLUG - THE ULTIMATE WORK OS</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         
         :root {
             --bg: #030407;
             --sidebar: #0d1017;
-            --blue: #0070f3;
+            --accent: #0070f3;
             --border: rgba(255, 255, 255, 0.08);
-            --text-off: #888;
+            --text-muted: #888;
         }
 
-        body, html { margin: 0; padding: 0; background: var(--bg); color: white; font-family: 'Inter', sans-serif; height: 100%; overflow: hidden; letter-spacing: -0.01em; }
+        body, html { margin: 0; padding: 0; background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; height: 100%; overflow: hidden; letter-spacing: -0.01em; }
         
-        /* SNAPPPLUG CLONE: Side Navigation */
-        #app-layout { display: flex; height: 100vh; }
-        aside { width: 240px; background: var(--sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px 12px; }
-        .nav-item { display: flex; align-items: center; padding: 10px 12px; border-radius: 8px; font-size: 14px; color: var(--text-off); cursor: pointer; margin-bottom: 2px; transition: 0.2s; }
-        .nav-item:hover { background: rgba(255,255,255,0.05); color: #fff; }
-        .nav-item.active { background: rgba(255,255,255,0.1); color: #fff; font-weight: 500; }
-        .nav-icon { width: 18px; margin-right: 12px; opacity: 0.7; }
+        #app-wrapper { display: flex; height: 100vh; }
+        
+        /* Sidebar: Exact Copy from Capture */
+        aside { width: 260px; background: var(--sidebar); border-right: 1px solid var(--border); padding: 24px 16px; display: flex; flex-direction: column; z-index: 10; }
+        .logo { font-size: 19px; font-weight: 700; margin-bottom: 40px; padding-left: 14px; letter-spacing: -0.5px; }
+        .nav-link { display: flex; align-items: center; padding: 10px 14px; border-radius: 10px; font-size: 14px; color: var(--text-muted); cursor: pointer; margin-bottom: 4px; transition: 0.25s; }
+        .nav-link:hover { background: rgba(255,255,255,0.05); color: #fff; }
+        .nav-link.active { background: rgba(255,255,255,0.08); color: #fff; font-weight: 600; }
+        
+        /* Main View Container */
+        main { flex: 1; position: relative; background: radial-gradient(circle at 50% 10%, #0d1626 0%, #030407 100%); display: flex; flex-direction: column; overflow: hidden; }
 
-        /* Main Dashboard Area */
-        main { flex: 1; position: relative; display: flex; flex-direction: column; }
-        header { height: 64px; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 40px; justify-content: space-between; background: rgba(3,4,7,0.5); backdrop-filter: blur(10px); }
-        
-        /* 3D Viewport Background */
-        #viewport { position: absolute; top: 64px; left: 0; width: 100%; height: calc(100% - 64px); z-index: 1; pointer-events: none; }
-        
-        /* Dashboard Content Overlay */
-        #content-overlay { position: relative; z-index: 2; padding: 40px; flex: 1; overflow-y: auto; pointer-events: auto; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
-        .agent-card { background: rgba(17, 20, 28, 0.8); border: 1px solid var(--border); border-radius: 16px; padding: 24px; backdrop-filter: blur(5px); }
-        .card-tag { font-size: 11px; background: rgba(0, 112, 243, 0.2); color: var(--blue); padding: 4px 8px; border-radius: 6px; display: inline-block; margin-bottom: 16px; }
+        /* 3D Canvas Layer */
+        #viewport { position: absolute; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
 
-        /* Real Copy Command Input */
-        #cmd-center { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); width: 680px; height: 56px; background: #161a22; border: 1px solid var(--border); border-radius: 14px; display: flex; align-items: center; padding: 0 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.7); z-index: 100; }
-        #cmd-input { flex: 1; background: transparent; border: none; outline: none; color: white; font-size: 15px; margin-left: 12px; }
+        /* Top Bar Overlay */
+        header { height: 64px; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 40px; justify-content: space-between; background: rgba(3,4,7,0.4); backdrop-filter: blur(20px); z-index: 20; }
+
+        /* Dashboard Content Area */
+        #content { z-index: 30; padding: 48px; flex: 1; overflow-y: auto; pointer-events: auto; }
+        .greetings { font-size: 28px; font-weight: 700; margin: 0; letter-spacing: -1px; }
+        .subtitle { color: var(--text-muted); font-size: 14px; margin: 8px 0 40px; }
+
+        /* Modern Command Center (Ultimate Copy) */
+        #cmd-center {
+            position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
+            width: 680px; height: 56px; background: #161a22; border: 1px solid var(--border);
+            border-radius: 14px; display: flex; align-items: center; padding: 0 20px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8); z-index: 1000;
+        }
+        #cmd-input { flex: 1; background: transparent; border: none; outline: none; color: #fff; font-size: 15px; margin-left: 14px; font-family: 'Inter', sans-serif; }
+        .cmd-hint { color: #555; background: #000; padding: 3px 8px; border-radius: 6px; font-size: 11px; border: 1px solid #333; }
+
+        /* Animated Glowing Element */
+        .glow-spot { position: absolute; top: 10%; right: 15%; width: 400px; height: 400px; background: radial-gradient(circle, rgba(0, 112, 243, 0.12) 0%, transparent 70%); pointer-events: none; }
     </style>
 </head>
 <body>
-    <div id="app-layout">
+    <div id="app-wrapper">
         <aside>
-            <div style="font-weight:700; font-size:18px; margin-bottom:32px; padding-left:12px">⚡ SNAPPLUG</div>
-            <div class="nav-item">Search</div>
-            <div class="nav-item active">Dashboard</div>
-            <div class="nav-item">Threads</div>
-            <div class="nav-item">Workflows</div>
-            <div class="nav-item">Plugins</div>
-            <div class="nav-item">Analytics</div>
-            <div style="margin-top:auto" class="nav-item">Settings</div>
+            <div class="logo">⚡ SNAPPLUG</div>
+            <div class="nav-link">Search</div>
+            <div class="nav-link active">Dashboard</div>
+            <div class="nav-link">Threads</div>
+            <div class="nav-link">Workflows</div>
+            <div class="nav-link">Integrations</div>
+            <div class="nav-link">Analytics</div>
+            <div style="margin-top:auto" class="nav-link">Settings</div>
         </aside>
 
         <main>
-            <header>
-                <div style="font-size:15px; font-weight:600">Home / Dashboard</div>
-                <div style="background:var(--blue); padding:8px 16px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer">New Workflow +</div>
-            </header>
-            
             <div id="viewport"></div>
+            <div class="glow-spot"></div>
 
-            <div id="content-overlay">
-                <div style="margin-bottom:32px">
-                    <h1 style="font-size:24px; margin:0">Welcome back, Sean</h1>
-                    <p style="color:var(--text-off); font-size:14px">Here's what's happening with your agents today.</p>
-                </div>
+            <header>
+                <div style="font-size: 14px; font-weight: 500; color: #aaa;">Dashboard / <span style="color:#fff">Overview</span></div>
+                <div style="background:var(--accent); padding: 8px 18px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer;">Deploy Project +</div>
+            </header>
+
+            <div id="content">
+                <h1 class="greetings">안녕하세요, Sean Kim</h1>
+                <p class="subtitle">오늘의 AI 에이전트 운영 상태를 확인하고 작업을 계속하세요.</p>
                 
-                <div class="grid">
-                    <div class="agent-card">
-                        <div class="card-tag">MARKETING</div>
-                        <h3 style="margin:0">Social Trends Analyzer</h3>
-                        <p style="color:var(--text-off); font-size:13px; margin:12px 0 24px">실시간 SNS 데이터를 수집하고 마케팅 전략을 제안합니다.</p>
-                        <div style="font-size:12px; color:var(--blue); font-weight:600">● RUNNING</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                    <div style="background:rgba(17,20,28,0.7); border:1px solid var(--border); border-radius:18px; padding:28px; backdrop-filter:blur(8px)">
+                        <span style="font-size:11px; background:rgba(0,112,243,0.15); color:var(--accent); padding:4px 10px; border-radius:6px; font-weight:700">AGENT.01</span>
+                        <h3 style="margin: 16px 0 8px;">Marketing Strategist</h3>
+                        <p style="font-size:13px; color:var(--text-muted); line-height:1.5;">최근 소셜 미디어 트렌드를 분석하고 맞춤형 마케팅 캠페인을 자동화합니다.</p>
                     </div>
-                    <div class="agent-card">
-                        <div class="card-tag">SALES</div>
-                        <h3 style="margin:0">Automated Quoter</h3>
-                        <p style="color:var(--text-off); font-size:13px; margin:12px 0 24px">기존 거래 내역을 바탕으로 견적서를 자동 생성합니다.</p>
-                        <div style="font-size:12px; color:#10b981; font-weight:600">● READY</div>
+                    <div style="background:rgba(17,20,28,0.7); border:1px solid var(--border); border-radius:18px; padding:28px; backdrop-filter:blur(8px)">
+                        <span style="font-size:11px; background:rgba(16,185,129,0.15); color:#10b981; padding:4px 10px; border-radius:6px; font-weight:700">AGENT.02</span>
+                        <h3 style="margin: 16px 0 8px;">Sales Automation</h3>
+                        <p style="font-size:13px; color:var(--text-muted); line-height:1.5;">잠재 고객 리스트를 정리하고 실시간 견적 제안서를 작성하여 전달합니다.</p>
                     </div>
                 </div>
             </div>
 
             <div id="cmd-center">
-                <span style="color:var(--blue); font-weight:bold">/</span>
-                <input type="text" id="cmd-input" placeholder="어떤 작업을 자동화할까요?">
-                <span style="background:#000; color:#444; font-size:10px; padding:3px 8px; border-radius:4px; border:1px solid #333">⌘K</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0070f3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="cmd-input" placeholder="실행할 업무를 입력하세요 (예: 마케팅 리포트 생성)">
+                <span class="cmd-hint">⌘K</span>
             </div>
         </main>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
+        // 3D Engine Setup (SaaS Premium Visuals)
         const scene = new THREE.Scene();
         const viewport = document.getElementById('viewport');
         const camera = new THREE.PerspectiveCamera(50, viewport.clientWidth / viewport.clientHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(viewport.clientWidth, viewport.clientHeight);
         viewport.appendChild(renderer.domElement);
 
-        const pointLight = new THREE.PointLight(0x0070f3, 2, 60);
-        pointLight.position.set(5, 10, 10);
-        scene.add(pointLight);
-        scene.add(new THREE.AmbientLight(0xffffff, 0.2));
+        scene.add(new THREE.AmbientLight(0xffffff, 0.3));
+        const spotlight = new THREE.PointLight(0x0070f3, 1.5, 50);
+        spotlight.position.set(2, 5, 10);
+        scene.add(spotlight);
 
-        // Background Particles
-        const particles = new THREE.Group();
-        for(let i=0; i<100; i++) {
-            const p = new THREE.Mesh(new THREE.SphereGeometry(0.05, 8, 8), new THREE.MeshBasicMaterial({color: 0x0070f3, transparent: true, opacity: 0.5}));
-            p.position.set((Math.random()-0.5)*30, (Math.random()-0.5)*30, (Math.random()-0.5)*30);
-            particles.add(p);
+        // Interactive 3D Nodes (Agent Visualization)
+        const nodes = [];
+        function addNode(x, y, z, color) {
+            const group = new THREE.Group();
+            const core = new THREE.Mesh(new THREE.IcosahedronGeometry(1.2, 1), new THREE.MeshPhongMaterial({ color: color, wireframe: true, transparent: true, opacity: 0.6 }));
+            group.add(core);
+
+            const ring = new THREE.Mesh(new THREE.TorusGeometry(1.8, 0.03, 16, 100), new THREE.MeshPhongMaterial({ color: color, transparent: true, opacity: 0.3 }));
+            ring.rotation.x = Math.PI/2;
+            group.add(ring);
+
+            group.position.set(x, y, z);
+            scene.add(group);
+            nodes.push({ group, ring });
         }
-        scene.add(particles);
 
-        camera.position.set(5, 5, 15);
+        addNode(-10, 0, -5, 0x0070f3);
+        addNode(10, 2, -10, 0x10b981);
+
+        camera.position.set(0, 5, 15);
         camera.lookAt(0, 0, 0);
 
         function animate() {
             requestAnimationFrame(animate);
-            particles.rotation.y += 0.001;
+            nodes.forEach((n, i) => {
+                n.group.position.y += Math.sin(Date.now()*0.001 + i)*0.01;
+                n.group.rotation.y += 0.005;
+                n.ring.rotation.z += 0.015;
+            });
             renderer.render(scene, camera);
         }
         animate();
+
+        window.onresize = () => {
+            camera.aspect = viewport.clientWidth / viewport.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(viewport.clientWidth, viewport.clientHeight);
+        };
     </script>
 </body>
 </html>
