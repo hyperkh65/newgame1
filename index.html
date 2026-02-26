@@ -1,104 +1,111 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>THE PREHISTORIK - REAL 3D EDITION</title>
+    <title>AI STARTUP - 3D OFFICE TOUR</title>
     <style>
-        body { margin: 0; background: #000; overflow: hidden; }
-        #info { position: absolute; top: 10px; width: 100%; text-align: center; color: white; font-family: sans-serif; pointer-events: none; text-shadow: 2px 2px #000; }
+        body { margin: 0; background: #f0f2f5; overflow: hidden; font-family: 'Segoe UI', sans-serif; }
+        #overlay { position: absolute; top: 20px; left: 20px; color: #333; background: rgba(255,255,255,0.8); padding: 15px; border-radius: 10px; pointer-events: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1 { margin: 0; font-size: 18px; color: #007bff; }
+        p { margin: 5px 0 0; font-size: 12px; }
     </style>
 </head>
 <body>
-    <div id="info">PREHISTORIK 3D: ARROW KEYS TO MOVE, SPACE TO JUMP</div>
+    <div id="overlay">
+        <h1>AI APP STARTUP HEADQUARTERS</h1>
+        <p>Use Arrows to Move, Mouse to Look Around</p>
+        <div id="dept-info" style="margin-top:10px; font-weight:bold; color:#555;">Current Zone: Entrance</div>
+    </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        // 1. Scene Setup
+        // --- 1. Basic Setup ---
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x60a0f0);
+        scene.background = new THREE.Color(0xeef2f3);
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.shadowMap.enabled = true;
         document.body.appendChild(renderer.domElement);
 
-        // 2. Lights
-        const light = new THREE.DirectionalLight(0xffffff, 1);
-        light.position.set(5, 10, 5);
-        light.castShadow = true;
-        scene.add(light);
-        scene.add(new THREE.AmbientLight(0x404040));
+        // Lights
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+        const sunLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        sunLight.position.set(10, 20, 10);
+        sunLight.castShadow = true;
+        scene.add(sunLight);
 
-        // 3. Sam - Genuine 3D Object Group
-        const sam = new THREE.Group();
-        
-        // Belly (Large Sphere)
-        const bodyGeo = new THREE.SphereGeometry(0.8, 32, 32);
-        const bodyMat = new THREE.MeshPhongMaterial({ color: 0xa05000 });
-        const body = new THREE.Mesh(bodyGeo, bodyMat);
-        body.scale.set(1.2, 1.4, 1.2);
-        body.castShadow = true;
-        sam.add(body);
+        // --- 2. Environment ---
+        // Large Floor
+        const floorGeo = new THREE.PlaneGeometry(100, 100);
+        const floorMat = new THREE.MeshPhongMaterial({ color: 0xffffff });
+        const floor = new THREE.Mesh(floorGeo, floorMat);
+        floor.rotation.x = -Math.PI / 2;
+        floor.receiveShadow = true;
+        scene.add(floor);
 
-        // Head
-        const headGeo = new THREE.BoxGeometry(0.6, 0.6, 0.6);
-        const headMat = new THREE.MeshPhongMaterial({ color: 0xf8b888 });
-        const head = new THREE.Mesh(headGeo, headMat);
-        head.position.y = 1.2;
-        head.castShadow = true;
-        sam.add(head);
+        // Helper to Create Zones
+        function createZone(x, z, color, name) {
+            const group = new THREE.Group();
+            
+            // Wall/Marker
+            const markerGeo = new THREE.BoxGeometry(8, 0.1, 8);
+            const markerMat = new THREE.MeshPhongMaterial({ color: color, transparent: true, opacity: 0.3 });
+            const marker = new THREE.Mesh(markerGeo, markerMat);
+            group.add(marker);
 
-        // Club
-        const clubGeo = new THREE.CylinderGeometry(0.1, 0.2, 1.5, 12);
-        const clubMat = new THREE.MeshPhongMaterial({ color: 0x5d4037 });
-        const club = new THREE.Mesh(clubGeo, clubMat);
-        club.position.set(0.8, 0, 0.5);
-        club.rotation.z = Math.PI / 4;
-        club.castShadow = true;
-        sam.add(club);
+            // Desk
+            const deskGeo = new THREE.BoxGeometry(4, 0.2, 2);
+            const deskMat = new THREE.MeshPhongMaterial({ color: 0xdddddd });
+            const desk = new THREE.Mesh(deskGeo, deskMat);
+            desk.position.y = 1;
+            desk.castShadow = true;
+            group.add(desk);
 
-        scene.add(sam);
+            // Employee (Simplified Avatar)
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.3), new THREE.MeshPhongMaterial({color: 0xffdbac}));
+            head.position.set(0, 2.2, -0.5);
+            group.add(head);
+            const body = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 1), new THREE.MeshPhongMaterial({color: color}));
+            body.position.set(0, 1.5, -0.5);
+            group.add(body);
 
-        // 4. Ground
-        const groundGeo = new THREE.PlaneGeometry(100, 100);
-        const groundMat = new THREE.MeshPhongMaterial({ color: 0x3d2b1f });
-        const ground = new THREE.Mesh(groundGeo, groundMat);
-        ground.rotation.x = -Math.PI / 2;
-        ground.position.y = -1.2;
-        ground.receiveShadow = true;
-        scene.add(ground);
+            group.position.set(x, 0, z);
+            scene.add(group);
+            return { name, x, z };
+        }
 
-        camera.position.set(0, 2, 8);
-        camera.lookAt(0, 0, 0);
+        const zones = [
+            createZone(-10, -10, 0xff4757, "DESIGN TEAM"),
+            createZone(10, -10, 0x2ed573, "MARKETING TEAM"),
+            createZone(-10, 10, 0x1e90ff, "SALES TEAM"),
+            createZone(10, 10, 0xffa502, "ACCOUNTING TEAM")
+        ];
 
-        // 5. Physics & Movement
-        let velY = 0;
-        let isJumping = false;
+        // --- 3. Interaction ---
+        camera.position.set(0, 5, 20);
         const keys = {};
+        window.addEventListener('keydown', e => keys[e.key] = true);
+        window.addEventListener('keyup', e => keys[e.key] = false);
 
         function animate() {
             requestAnimationFrame(animate);
 
-            if (keys['ArrowRight']) { sam.position.x += 0.1; sam.rotation.y = Math.PI/2; }
-            if (keys['ArrowLeft']) { sam.position.x -= 0.1; sam.rotation.y = -Math.PI/2; }
-            
-            if (keys[' '] && !isJumping) { velY = 0.2; isJumping = true; }
-            
-            if (isJumping) {
-                sam.position.y += velY;
-                velY -= 0.01;
-                if (sam.position.y <= 0) {
-                    sam.position.y = 0;
-                    isJumping = false;
-                }
-            }
+            if (keys['ArrowUp'] || keys['w']) camera.position.z -= 0.2;
+            if (keys['ArrowDown'] || keys['s']) camera.position.z += 0.2;
+            if (keys['ArrowLeft'] || keys['a']) camera.position.x -= 0.2;
+            if (keys['ArrowRight'] || keys['d']) camera.position.x += 0.2;
 
-            // Camera follow
-            camera.position.x = sam.position.x;
+            // Simple Collision & Zone Detection
+            zones.forEach(z => {
+                const dist = Math.sqrt((camera.position.x - z.x)**2 + (camera.position.z - z.z)**2);
+                if (dist < 5) {
+                    document.getElementById('dept-info').innerText = "Current Zone: " + z.name;
+                    document.getElementById('dept-info').style.color = "#000";
+                }
+            });
 
             renderer.render(scene, camera);
         }
-
-        window.addEventListener('keydown', e => keys[e.key] = true);
-        window.addEventListener('keyup', e => keys[e.key] = false);
 
         animate();
     </script>
