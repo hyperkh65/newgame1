@@ -1,112 +1,123 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>AI STARTUP - 3D OFFICE TOUR</title>
+    <title>AI OFFICE SIMS - LIVING WORLD</title>
     <style>
-        body { margin: 0; background: #f0f2f5; overflow: hidden; font-family: 'Segoe UI', sans-serif; }
-        #overlay { position: absolute; top: 20px; left: 20px; color: #333; background: rgba(255,255,255,0.8); padding: 15px; border-radius: 10px; pointer-events: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h1 { margin: 0; font-size: 18px; color: #007bff; }
-        p { margin: 5px 0 0; font-size: 12px; }
+        body { margin: 0; background: #222; overflow: hidden; font-family: 'Tahoma', sans-serif; }
+        #ui-panel { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); color: #0f0; padding: 10px 30px; border-radius: 50px; border: 2px solid #0f0; font-weight: bold; pointer-events: none; }
     </style>
 </head>
 <body>
-    <div id="overlay">
-        <h1>AI APP STARTUP HEADQUARTERS</h1>
-        <p>Use Arrows to Move, Mouse to Look Around</p>
-        <div id="dept-info" style="margin-top:10px; font-weight:bold; color:#555;">Current Zone: Entrance</div>
-    </div>
+    <div id="ui-panel">SIMULATING OFFICE LIFE... | ACTIVE EMPLOYEES: 8</div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        // --- 1. Basic Setup ---
+        // --- 1. Engine Setup (High Detail) ---
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0xeef2f3);
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        scene.background = new THREE.Color(0xd1d9e6);
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.shadowMap.enabled = true;
         document.body.appendChild(renderer.domElement);
 
-        // Lights
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-        scene.add(ambientLight);
-        const sunLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        sunLight.position.set(10, 20, 10);
-        sunLight.castShadow = true;
-        scene.add(sunLight);
+        // Lighting (Professional Studio Style)
+        const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.8);
+        scene.add(hemiLight);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        dirLight.position.set(20, 40, 20);
+        dirLight.castShadow = true;
+        scene.add(dirLight);
 
-        // --- 2. Environment ---
-        // Large Floor
-        const floorGeo = new THREE.PlaneGeometry(100, 100);
-        const floorMat = new THREE.MeshPhongMaterial({ color: 0xffffff });
-        const floor = new THREE.Mesh(floorGeo, floorMat);
-        floor.rotation.x = -Math.PI / 2;
+        // --- 2. Advanced Office Assets ---
+        // Polished Floor
+        const floor = new THREE.Mesh(new THREE.PlaneGeometry(60, 40), new THREE.MeshPhongMaterial({ color: 0xffffff, shininess: 100 }));
+        floor.rotation.x = -Math.PI/2;
         floor.receiveShadow = true;
         scene.add(floor);
 
-        // Helper to Create Zones
-        function createZone(x, z, color, name) {
+        // Room Walls (Sims Style - Partial Cutaway)
+        function createWall(w, h, d, x, z) {
+            const wall = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), new THREE.MeshPhongMaterial({color: 0xcccccc}));
+            wall.position.set(x, h/2, z);
+            scene.add(wall);
+        }
+        createWall(60, 4, 0.5, 0, -20); // Back wall
+        createWall(0.5, 4, 40, -30, 0); // Left wall
+
+        // Detailed Furniture Group
+        function createDesk(x, z, deptColor) {
             const group = new THREE.Group();
-            
-            // Wall/Marker
-            const markerGeo = new THREE.BoxGeometry(8, 0.1, 8);
-            const markerMat = new THREE.MeshPhongMaterial({ color: color, transparent: true, opacity: 0.3 });
-            const marker = new THREE.Mesh(markerGeo, markerMat);
-            group.add(marker);
-
-            // Desk
-            const deskGeo = new THREE.BoxGeometry(4, 0.2, 2);
-            const deskMat = new THREE.MeshPhongMaterial({ color: 0xdddddd });
-            const desk = new THREE.Mesh(deskGeo, deskMat);
-            desk.position.y = 1;
-            desk.castShadow = true;
-            group.add(desk);
-
-            // Employee (Simplified Avatar)
-            const head = new THREE.Mesh(new THREE.SphereGeometry(0.3), new THREE.MeshPhongMaterial({color: 0xffdbac}));
-            head.position.set(0, 2.2, -0.5);
-            group.add(head);
-            const body = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 1), new THREE.MeshPhongMaterial({color: color}));
-            body.position.set(0, 1.5, -0.5);
-            group.add(body);
+            // Table
+            const table = new THREE.Mesh(new THREE.BoxGeometry(3, 1.5, 2), new THREE.MeshPhongMaterial({color: 0xffffff}));
+            table.position.y = 0.75;
+            group.add(table);
+            // Monitor
+            const mon = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.8, 0.1), new THREE.MeshPhongMaterial({color: 0x333333}));
+            mon.position.set(0, 2, -0.5);
+            group.add(mon);
+            // Chair
+            const chair = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 1), new THREE.MeshPhongMaterial({color: deptColor}));
+            chair.position.set(0, 0.5, 1.2);
+            group.add(chair);
 
             group.position.set(x, 0, z);
             scene.add(group);
-            return { name, x, z };
         }
 
-        const zones = [
-            createZone(-10, -10, 0xff4757, "DESIGN TEAM"),
-            createZone(10, -10, 0x2ed573, "MARKETING TEAM"),
-            createZone(-10, 10, 0x1e90ff, "SALES TEAM"),
-            createZone(10, 10, 0xffa502, "ACCOUNTING TEAM")
+        // Layout
+        for(let i=0; i<4; i++) createDesk(-20 + i*12, -10, 0x1e90ff); // Sales/Dev
+        for(let i=0; i<4; i++) createDesk(-20 + i*12, 10, 0xff4757);  // Design/Market
+
+        // --- 3. Sims-like Employee Class ---
+        class Employee {
+            constructor(x, z, color) {
+                this.group = new THREE.Group();
+                const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.3, 1), new THREE.MeshPhongMaterial({color: color}));
+                this.group.add(body);
+                const head = new THREE.Mesh(new THREE.SphereGeometry(0.35), new THREE.MeshPhongMaterial({color: 0xffdbac}));
+                head.position.y = 1.2;
+                this.group.add(head);
+
+                this.group.position.set(x, 1, z);
+                scene.add(this.group);
+
+                this.target = new THREE.Vector3(x, 1, z);
+                this.state = 'working';
+                this.timer = Math.random() * 500;
+            }
+
+            update() {
+                this.timer--;
+                if (this.timer <= 0) {
+                    // New Task: Go to water, visit coworker, or return to desk
+                    this.target.set((Math.random()-0.5)*50, 1, (Math.random()-0.5)*30);
+                    this.timer = 200 + Math.random() * 500;
+                }
+
+                // Move toward target (Simple Sims AI)
+                const dir = new THREE.Vector3().subVectors(this.target, this.group.position).normalize();
+                if (this.group.position.distanceTo(this.target) > 0.5) {
+                    this.group.position.addScaledVector(dir, 0.05);
+                    this.group.rotation.y = Math.atan2(dir.x, dir.z);
+                }
+            }
+        }
+
+        const employees = [
+            new Employee(-20, -10, 0x1e90ff), new Employee(-8, -10, 0x1e90ff),
+            new Employee(4, -10, 0x1e90ff), new Employee(16, -10, 0x1e90ff),
+            new Employee(-20, 10, 0xff4757), new Employee(-8, 10, 0xff4757),
+            new Employee(4, 10, 0xff4757), new Employee(16, 10, 0xff4757)
         ];
 
-        // --- 3. Interaction ---
-        camera.position.set(0, 5, 20);
-        const keys = {};
-        window.addEventListener('keydown', e => keys[e.key] = true);
-        window.addEventListener('keyup', e => keys[e.key] = false);
+        camera.position.set(0, 15, 30);
+        camera.lookAt(0, 0, 0);
 
         function animate() {
             requestAnimationFrame(animate);
-
-            if (keys['ArrowUp'] || keys['w']) camera.position.z -= 0.2;
-            if (keys['ArrowDown'] || keys['s']) camera.position.z += 0.2;
-            if (keys['ArrowLeft'] || keys['a']) camera.position.x -= 0.2;
-            if (keys['ArrowRight'] || keys['d']) camera.position.x += 0.2;
-
-            // Simple Collision & Zone Detection
-            zones.forEach(z => {
-                const dist = Math.sqrt((camera.position.x - z.x)**2 + (camera.position.z - z.z)**2);
-                if (dist < 5) {
-                    document.getElementById('dept-info').innerText = "Current Zone: " + z.name;
-                    document.getElementById('dept-info').style.color = "#000";
-                }
-            });
-
+            employees.forEach(e => e.update());
             renderer.render(scene, camera);
         }
-
         animate();
     </script>
 </body>
