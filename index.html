@@ -2,84 +2,95 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SNAPPLUG - AGENTIC WORK OS</title>
+    <title>SNAPPLUG 3D - AGENTIC OS REPLICA</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         
         :root {
-            --bg-color: #030407;
-            --sidebar-bg: #0d1017;
-            --brand-blue: #0070f3;
-            --border-subtle: rgba(255, 255, 255, 0.08);
-            --text-secondary: #888;
+            --bg: #030407;
+            --sidebar: #0d1017;
+            --blue: #0070f3;
+            --border: rgba(255, 255, 255, 0.08);
+            --text-off: #888;
         }
 
-        body, html { margin: 0; padding: 0; background: var(--bg-color); color: #fff; font-family: 'Inter', sans-serif; height: 100%; overflow: hidden; letter-spacing: -0.02em; }
+        body, html { margin: 0; padding: 0; background: var(--bg); color: white; font-family: 'Inter', sans-serif; height: 100%; overflow: hidden; letter-spacing: -0.01em; }
         
-        /* SNAPPPLUG REAL COPY: Header */
-        header {
-            position: fixed; top: 0; width: 100%; height: 64px;
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0 40px; box-sizing: border-box;
-            background: rgba(3, 4, 7, 0.7); backdrop-filter: saturate(180%) blur(20px);
-            border-bottom: 1px solid var(--border-subtle); z-index: 1000;
-        }
-        .logo-area { display: flex; align-items: center; font-weight: 700; font-size: 21px; }
-        .logo-icon { width: 24px; height: 24px; background: var(--brand-blue); border-radius: 6px; margin-right: 12px; display: flex; align-items: center; justify-content: center; }
+        /* SNAPPPLUG CLONE: Side Navigation */
+        #app-layout { display: flex; height: 100vh; }
+        aside { width: 240px; background: var(--sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px 12px; }
+        .nav-item { display: flex; align-items: center; padding: 10px 12px; border-radius: 8px; font-size: 14px; color: var(--text-off); cursor: pointer; margin-bottom: 2px; transition: 0.2s; }
+        .nav-item:hover { background: rgba(255,255,255,0.05); color: #fff; }
+        .nav-item.active { background: rgba(255,255,255,0.1); color: #fff; font-weight: 500; }
+        .nav-icon { width: 18px; margin-right: 12px; opacity: 0.7; }
 
-        /* Sidebar & Layout */
-        .app-container { display: flex; height: 100vh; padding-top: 64px; box-sizing: border-box; }
-        aside { width: 260px; border-right: 1px solid var(--border-subtle); background: var(--sidebar-bg); padding: 24px 16px; display: flex; flex-direction: column; }
-        .nav-link { padding: 10px 14px; border-radius: 10px; font-size: 14px; color: var(--text-secondary); cursor: pointer; transition: all 0.2s; margin-bottom: 4px; display: flex; align-items: center; }
-        .nav-link:hover { background: rgba(255,255,255,0.05); color: #fff; }
-        .nav-link.active { background: rgba(0, 112, 243, 0.1); color: var(--brand-blue); font-weight: 600; }
-
-        /* Main Viewport & 3D Layer */
-        #viewport { flex: 1; position: relative; background: radial-gradient(circle at 50% 50%, #111e35 0%, #030407 100%); }
+        /* Main Dashboard Area */
+        main { flex: 1; position: relative; display: flex; flex-direction: column; }
+        header { height: 64px; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 40px; justify-content: space-between; background: rgba(3,4,7,0.5); backdrop-filter: blur(10px); }
         
-        /* Command Terminal - SN定PLUG's Core UI */
-        #cmd-bar {
-            position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
-            width: 640px; height: 52px; background: #161a22; border: 1px solid var(--border-subtle);
-            border-radius: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.6);
-            display: flex; align-items: center; padding: 0 16px;
-        }
-        #cmd-input { flex: 1; background: transparent; border: none; outline: none; color: #fff; font-size: 15px; margin-left: 12px; }
-        .kbd { background: #000; color: #555; font-size: 10px; padding: 2px 6px; border-radius: 4px; border: 1px solid #333; }
+        /* 3D Viewport Background */
+        #viewport { position: absolute; top: 64px; left: 0; width: 100%; height: calc(100% - 64px); z-index: 1; pointer-events: none; }
+        
+        /* Dashboard Content Overlay */
+        #content-overlay { position: relative; z-index: 2; padding: 40px; flex: 1; overflow-y: auto; pointer-events: auto; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
+        .agent-card { background: rgba(17, 20, 28, 0.8); border: 1px solid var(--border); border-radius: 16px; padding: 24px; backdrop-filter: blur(5px); }
+        .card-tag { font-size: 11px; background: rgba(0, 112, 243, 0.2); color: var(--blue); padding: 4px 8px; border-radius: 6px; display: inline-block; margin-bottom: 16px; }
 
-        /* Decorative Background Elements from snapplug */
-        .bg-glow { position: absolute; width: 400px; height: 400px; background: radial-gradient(circle, rgba(0, 112, 243, 0.15) 0%, transparent 70%); top: 10%; right: 10%; pointer-events: none; }
+        /* Real Copy Command Input */
+        #cmd-center { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); width: 680px; height: 56px; background: #161a22; border: 1px solid var(--border); border-radius: 14px; display: flex; align-items: center; padding: 0 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.7); z-index: 100; }
+        #cmd-input { flex: 1; background: transparent; border: none; outline: none; color: white; font-size: 15px; margin-left: 12px; }
     </style>
 </head>
 <body>
-    <header>
-        <div class="logo-area"><div class="logo-icon">S</div> SNAPPLUG</div>
-        <div style="display:flex; gap:28px; font-size:14px; color:var(--text-secondary)">
-            <span>Marketplace</span><span>Pricing</span><span style="color:#fff">Sign In</span>
-        </div>
-    </header>
-
-    <div class="app-container">
+    <div id="app-layout">
         <aside>
-            <div style="font-size:11px; color:#555; text-transform:uppercase; font-weight:700; padding-left:14px; margin-bottom:12px">Organization</div>
-            <div class="nav-link active">Dashboard</div>
-            <div class="nav-link">Workflows</div>
-            <div class="nav-link">Agents</div>
-            <div class="nav-link">Integrations</div>
-            <div style="margin-top:auto" class="nav-link">Settings</div>
+            <div style="font-weight:700; font-size:18px; margin-bottom:32px; padding-left:12px">⚡ SNAPPLUG</div>
+            <div class="nav-item">Search</div>
+            <div class="nav-item active">Dashboard</div>
+            <div class="nav-item">Threads</div>
+            <div class="nav-item">Workflows</div>
+            <div class="nav-item">Plugins</div>
+            <div class="nav-item">Analytics</div>
+            <div style="margin-top:auto" class="nav-item">Settings</div>
         </aside>
 
-        <section id="viewport">
-            <div class="bg-glow"></div>
-            <!-- Three.js will inject here -->
-        </section>
+        <main>
+            <header>
+                <div style="font-size:15px; font-weight:600">Home / Dashboard</div>
+                <div style="background:var(--blue); padding:8px 16px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer">New Workflow +</div>
+            </header>
+            
+            <div id="viewport"></div>
 
-        <div id="cmd-bar">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0070f3" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-            <input type="text" id="cmd-input" placeholder="어떤 명령을 내리시겠습니까?">
-            <span class="kbd">⌘K</span>
-        </div>
+            <div id="content-overlay">
+                <div style="margin-bottom:32px">
+                    <h1 style="font-size:24px; margin:0">Welcome back, Sean</h1>
+                    <p style="color:var(--text-off); font-size:14px">Here's what's happening with your agents today.</p>
+                </div>
+                
+                <div class="grid">
+                    <div class="agent-card">
+                        <div class="card-tag">MARKETING</div>
+                        <h3 style="margin:0">Social Trends Analyzer</h3>
+                        <p style="color:var(--text-off); font-size:13px; margin:12px 0 24px">실시간 SNS 데이터를 수집하고 마케팅 전략을 제안합니다.</p>
+                        <div style="font-size:12px; color:var(--blue); font-weight:600">● RUNNING</div>
+                    </div>
+                    <div class="agent-card">
+                        <div class="card-tag">SALES</div>
+                        <h3 style="margin:0">Automated Quoter</h3>
+                        <p style="color:var(--text-off); font-size:13px; margin:12px 0 24px">기존 거래 내역을 바탕으로 견적서를 자동 생성합니다.</p>
+                        <div style="font-size:12px; color:#10b981; font-weight:600">● READY</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="cmd-center">
+                <span style="color:var(--blue); font-weight:bold">/</span>
+                <input type="text" id="cmd-input" placeholder="어떤 작업을 자동화할까요?">
+                <span style="background:#000; color:#444; font-size:10px; padding:3px 8px; border-radius:4px; border:1px solid #333">⌘K</span>
+            </div>
+        </main>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -91,57 +102,29 @@
         renderer.setSize(viewport.clientWidth, viewport.clientHeight);
         viewport.appendChild(renderer.domElement);
 
-        // Lighting (Professional SaaS Look)
-        const light = new THREE.PointLight(0x0070f3, 1.5, 100);
-        light.position.set(5, 5, 10);
-        scene.add(light);
+        const pointLight = new THREE.PointLight(0x0070f3, 2, 60);
+        pointLight.position.set(5, 10, 10);
+        scene.add(pointLight);
         scene.add(new THREE.AmbientLight(0xffffff, 0.2));
 
-        // Agents (Advanced 3D Objects with Glow)
-        const agents = [];
-        function createAgent(x, z, color) {
-            const group = new THREE.Group();
-            
-            // Core Sphere
-            const geo = new THREE.IcosahedronGeometry(0.8, 2);
-            const mat = new THREE.MeshPhongMaterial({ color: color, wireframe: true, transparent: true, opacity: 0.8 });
-            const core = new THREE.Mesh(geo, mat);
-            group.add(core);
-
-            // Floating Ring
-            const ringGeo = new THREE.TorusGeometry(1.2, 0.05, 16, 100);
-            const ringMat = new THREE.MeshPhongMaterial({ color: color, transparent: true, opacity: 0.4 });
-            const ring = new THREE.Mesh(ringGeo, ringMat);
-            ring.rotation.x = Math.PI / 2;
-            group.add(ring);
-
-            group.position.set(x, 1, z);
-            scene.add(group);
-            agents.push({ group, ring });
+        // Background Particles
+        const particles = new THREE.Group();
+        for(let i=0; i<100; i++) {
+            const p = new THREE.Mesh(new THREE.SphereGeometry(0.05, 8, 8), new THREE.MeshBasicMaterial({color: 0x0070f3, transparent: true, opacity: 0.5}));
+            p.position.set((Math.random()-0.5)*30, (Math.random()-0.5)*30, (Math.random()-0.5)*30);
+            particles.add(p);
         }
+        scene.add(particles);
 
-        createAgent(-6, -2, 0x0070f3);
-        createAgent(6, -2, 0x00ff88);
-
-        camera.position.set(0, 10, 20);
+        camera.position.set(5, 5, 15);
         camera.lookAt(0, 0, 0);
 
         function animate() {
             requestAnimationFrame(animate);
-            agents.forEach((a, i) => {
-                a.group.position.y = 1 + Math.sin(Date.now() * 0.002 + i) * 0.3;
-                a.group.rotation.y += 0.01;
-                a.ring.rotation.z += 0.02;
-            });
+            particles.rotation.y += 0.001;
             renderer.render(scene, camera);
         }
         animate();
-
-        window.onresize = () => {
-            camera.aspect = viewport.clientWidth / viewport.clientHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(viewport.clientWidth, viewport.clientHeight);
-        };
     </script>
 </body>
 </html>
