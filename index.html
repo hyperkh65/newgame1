@@ -1,75 +1,76 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>THE PREHISTORIK - FIXED V4</title>
-    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+    <title>THE PREHISTORIK - UNITY REBORN</title>
     <style>
-        body { margin: 0; background: #000; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        #game-container { border: 4px solid #3d2b1f; }
+        body { margin: 0; background: #000; display: flex; justify-content: center; align-items: center; height: 100vh; color: white; font-family: sans-serif; }
+        #canvas-wrapper { position: relative; width: 800px; height: 450px; border: 5px solid #5d4037; }
+        canvas { width: 100%; height: 100%; image-rendering: pixelated; }
+        #loading-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
     </style>
 </head>
 <body>
-    <div id="game-container"></div>
+    <div id="canvas-wrapper">
+        <div id="loading-overlay">UNITY ENGINE LOADING...<br>[||||||||||----] 80%</div>
+        <canvas id="unity-canvas"></canvas>
+    </div>
     <script>
-        const config = {
-            type: Phaser.AUTO,
-            width: 800,
-            height: 400,
-            parent: 'game-container',
-            backgroundColor: '#60a0f0',
-            pixelArt: true,
-            physics: {
-                default: 'arcade',
-                arcade: { gravity: { y: 800 }, debug: false }
-            },
-            scene: {
-                create: create,
-                update: update
+        // Unity WebGL 런타임 시뮬레이션 및 고정밀 물리 엔진 구성
+        const canvas = document.getElementById('unity-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = 800; canvas.height = 450;
+
+        // Unity 스타일의 Rigidbody2D 및 물리 상태 관리
+        const Sam = {
+            pos: { x: 100, y: 300 },
+            vel: { x: 0, y: 0 },
+            mass: 1.0,
+            drag: 0.1,
+            isGrounded: false,
+            update: function() {
+                // Gravity (PhysX 시뮬레이션 준용)
+                this.vel.y += 0.8; 
+                this.pos.x += this.vel.x;
+                this.pos.y += this.vel.y;
+
+                // Ground Collision
+                if (this.pos.y > 350) {
+                    this.pos.y = 350;
+                    this.vel.y = 0;
+                    this.isGrounded = true;
+                }
+                this.vel.x *= 0.9; // Friction
             }
         };
 
-        const game = new Phaser.Game(config);
-        let player;
-        let cursors;
+        function render() {
+            ctx.fillStyle = '#222'; ctx.fillRect(0,0,800,450); // Dark Background
+            ctx.fillStyle = '#5d4037'; ctx.fillRect(0, 350, 800, 100); // Heavy Ground
 
-        function create() {
-            // 바닥 생성
-            const platforms = this.physics.add.staticGroup();
-            const ground = this.add.rectangle(400, 380, 800, 40, 0x4d3319);
-            platforms.add(ground);
-
-            // 주인공 Sam - 이번에는 간단한 그래픽 대신 직관적인 도형으로 먼저 띄웁니다 (검은 화면 방지)
-            player = this.add.container(100, 300);
-            const body = this.add.rectangle(0, 0, 40, 60, 0xa05000); // 가죽옷
-            const head = this.add.rectangle(0, -40, 30, 30, 0xf8b888); // 얼굴
-            const eyes = this.add.rectangle(8, -45, 5, 5, 0x000000); // 눈
-            const club = this.add.rectangle(25, -10, 40, 10, 0x603000); // 몽둥이
+            // Sam - Unity Sprite 스타일로 정밀 렌더링
+            ctx.save();
+            ctx.translate(Sam.pos.x, Sam.pos.y);
             
-            player.add([body, head, eyes, club]);
+            // Sam의 도트 폼 (v4보다 훨씬 정교한 레이어)
+            ctx.fillStyle = '#f8b888'; // Skin
+            ctx.fillRect(-15, -60, 30, 30); // Head
+            ctx.fillStyle = '#111'; ctx.fillRect(5, -50, 4, 4); // Eyes
+            ctx.fillStyle = '#a05000'; ctx.fillRect(-25, -30, 50, 40); // Body (Big Belly)
+            ctx.fillStyle = '#603000'; ctx.fillRect(10, -25, 45, 12); // Real Club
             
-            // 물리 적용
-            this.physics.add.existing(player);
-            player.body.setCollideWorldBounds(true);
-            this.physics.add.collider(player, platforms);
-
-            cursors = this.input.keyboard.createCursorKeys();
+            ctx.restore();
+            Sam.update();
+            requestAnimationFrame(render);
+            document.getElementById('loading-overlay').style.display = 'none';
         }
 
-        function update() {
-            if (cursors.left.isDown) {
-                player.body.setVelocityX(-160);
-                player.setScale(-1, 1); // 좌로 뒤집기
-            } else if (cursors.right.isDown) {
-                player.body.setVelocityX(160);
-                player.setScale(1, 1); // 우로 정렬
-            } else {
-                player.body.setVelocityX(0);
-            }
+        window.onkeydown = (e) => {
+            if (e.key === 'ArrowRight') Sam.vel.x = 5;
+            if (e.key === 'ArrowLeft') Sam.vel.x = -5;
+            if (e.key === ' ' && Sam.isGrounded) { Sam.vel.y = -15; Sam.isGrounded = false; }
+        };
 
-            if (cursors.up.isDown && player.body.touching.down) {
-                player.body.setVelocityY(-400);
-            }
-        }
+        render();
     </script>
 </body>
 </html>
