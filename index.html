@@ -1,87 +1,106 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>THE PREHISTORIK - 3D WORLD EDITION</title>
+    <title>THE PREHISTORIK - REAL 3D EDITION</title>
     <style>
-        body { margin: 0; background: #000; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; perspective: 1000px; }
-        #game-viewport { position: relative; width: 800px; height: 450px; background: linear-gradient(#4facfe, #00f2fe); border: 8px solid #2d1b0f; transform-style: preserve-3d; }
-        canvas { width: 100%; height: 100%; image-rendering: pixelated; }
+        body { margin: 0; background: #000; overflow: hidden; }
+        #info { position: absolute; top: 10px; width: 100%; text-align: center; color: white; font-family: sans-serif; pointer-events: none; text-shadow: 2px 2px #000; }
     </style>
 </head>
 <body>
-    <div id="game-viewport">
-        <canvas id="c"></canvas>
-    </div>
-
+    <div id="info">PREHISTORIK 3D: ARROW KEYS TO MOVE, SPACE TO JUMP</div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        const canvas = document.getElementById('c');
-        const ctx = canvas.getContext('2d');
-        canvas.width = 800; canvas.height = 450;
+        // 1. Scene Setup
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x60a0f0);
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        document.body.appendChild(renderer.domElement);
 
-        const state = { x: 400, y: 0, z: 0, vx: 0, vy: 0, frame: 0 };
-        const groundY = 320;
+        // 2. Lights
+        const light = new THREE.DirectionalLight(0xffffff, 1);
+        light.position.set(5, 10, 5);
+        light.castShadow = true;
+        scene.add(light);
+        scene.add(new THREE.AmbientLight(0x404040));
 
-        function draw3D() {
-            ctx.clearRect(0,0,800,450);
+        // 3. Sam - Genuine 3D Object Group
+        const sam = new THREE.Group();
+        
+        // Belly (Large Sphere)
+        const bodyGeo = new THREE.SphereGeometry(0.8, 32, 32);
+        const bodyMat = new THREE.MeshPhongMaterial({ color: 0xa05000 });
+        const body = new THREE.Mesh(bodyGeo, bodyMat);
+        body.scale.set(1.2, 1.4, 1.2);
+        body.castShadow = true;
+        sam.add(body);
+
+        // Head
+        const headGeo = new THREE.BoxGeometry(0.6, 0.6, 0.6);
+        const headMat = new THREE.MeshPhongMaterial({ color: 0xf8b888 });
+        const head = new THREE.Mesh(headGeo, headMat);
+        head.position.y = 1.2;
+        head.castShadow = true;
+        sam.add(head);
+
+        // Club
+        const clubGeo = new THREE.CylinderGeometry(0.1, 0.2, 1.5, 12);
+        const clubMat = new THREE.MeshPhongMaterial({ color: 0x5d4037 });
+        const club = new THREE.Mesh(clubGeo, clubMat);
+        club.position.set(0.8, 0, 0.5);
+        club.rotation.z = Math.PI / 4;
+        club.castShadow = true;
+        sam.add(club);
+
+        scene.add(sam);
+
+        // 4. Ground
+        const groundGeo = new THREE.PlaneGeometry(100, 100);
+        const groundMat = new THREE.MeshPhongMaterial({ color: 0x3d2b1f });
+        const ground = new THREE.Mesh(groundGeo, groundMat);
+        ground.rotation.x = -Math.PI / 2;
+        ground.position.y = -1.2;
+        ground.receiveShadow = true;
+        scene.add(ground);
+
+        camera.position.set(0, 2, 8);
+        camera.lookAt(0, 0, 0);
+
+        // 5. Physics & Movement
+        let velY = 0;
+        let isJumping = false;
+        const keys = {};
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (keys['ArrowRight']) { sam.position.x += 0.1; sam.rotation.y = Math.PI/2; }
+            if (keys['ArrowLeft']) { sam.position.x -= 0.1; sam.rotation.y = -Math.PI/2; }
             
-            // 1. 3D 바닥 (원근법 적용)
-            ctx.fillStyle = '#3d2b1f';
-            ctx.beginPath();
-            ctx.moveTo(0, groundY);
-            ctx.lineTo(800, groundY);
-            ctx.lineTo(1200, 600);
-            ctx.lineTo(-400, 600);
-            ctx.fill();
-
-            // 바닥 그리드 (입체감 강화)
-            ctx.strokeStyle = '#4d3319';
-            for(let i=-1000; i<2000; i+=100) {
-                let xOff = (i - state.x * 0.5) % 1000;
-                ctx.beginPath();
-                ctx.moveTo(400 + xOff/4, groundY);
-                ctx.lineTo(400 + xOff, 600);
-                ctx.stroke();
+            if (keys[' '] && !isJumping) { velY = 0.2; isJumping = true; }
+            
+            if (isJumping) {
+                sam.position.y += velY;
+                velY -= 0.01;
+                if (sam.position.y <= 0) {
+                    sam.position.y = 0;
+                    isJumping = false;
+                }
             }
 
-            // 2. Sam 애니메이션 (3D 위치 감안)
-            const samScale = 0.8 + (state.y * 0.001);
-            ctx.save();
-            ctx.translate(400, groundY + state.y);
-            ctx.scale(samScale * (state.vx < 0 ? -1 : 1), samScale);
+            // Camera follow
+            camera.position.x = sam.position.x;
 
-            // Shadow (3D 입체감의 핵심)
-            ctx.fillStyle = 'rgba(0,0,0,0.3)';
-            ctx.beginPath(); ctx.ellipse(0, 40, 30, 10, 0,0,Math.PI*2); ctx.fill();
-
-            // Sam Main
-            ctx.fillStyle = '#f8b888';
-            ctx.beginPath(); ctx.ellipse(0, 0, 25, 35, 0,0,Math.PI*2); ctx.fill(); // Belly
-            ctx.fillStyle = '#a05000'; ctx.fillRect(-22, -20, 44, 45); // Clothes
-            ctx.fillStyle = '#f8b888'; ctx.fillRect(-15, -60, 30, 30); // Head
-            ctx.fillStyle = '#603000'; ctx.fillRect(10, -20, 50, 15); // Club
-            
-            ctx.restore();
+            renderer.render(scene, camera);
         }
 
-        function update() {
-            state.frame++;
-            state.x += state.vx;
-            state.y += state.vy;
-            if (state.y < 0) state.vy += 0.8; // Gravity
-            else { state.y = 0; state.vy = 0; }
-            state.vx *= 0.9;
+        window.addEventListener('keydown', e => keys[e.key] = true);
+        window.addEventListener('keyup', e => keys[e.key] = false);
 
-            draw3D();
-            requestAnimationFrame(update);
-        }
-
-        window.onkeydown = (e) => {
-            if (e.key === 'ArrowRight') state.vx = 8;
-            if (e.key === 'ArrowLeft') state.vx = -8;
-            if (e.key === ' ' && state.y === 0) state.vy = -15;
-        };
-
-        update();
+        animate();
     </script>
 </body>
 </html>
