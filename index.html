@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Prehistorik Mini Game</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #87CEEB; font-family: 'Courier New', Courier, monospace; }
+        canvas { display: block; background: linear-gradient(#87CEEB, #E0F6FF); }
+        #ui { position: absolute; top: 20px; left: 20px; color: #5D4037; font-size: 24px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div id="ui">고기 점수: <span id="score">0</span></div>
+    <canvas id="gameCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let score = 0;
+        let gameActive = true;
+
+        const player = {
+            x: 100,
+            y: canvas.height - 150,
+            width: 60,
+            height: 80,
+            color: '#D2691E',
+            dy: 0,
+            jumpForce: 15,
+            gravity: 0.8,
+            grounded: false
+        };
+
+        const obstacles = [];
+        function spawnObstacle() {
+            obstacles.push({
+                x: canvas.width,
+                y: canvas.height - 100,
+                width: 40,
+                height: 40,
+                color: '#555'
+            });
+        }
+
+        function update() {
+            if (!gameActive) return;
+
+            // gravity
+            if (!player.grounded) {
+                player.dy += player.gravity;
+                player.y += player.dy;
+            }
+
+            if (player.y + player.height > canvas.height - 50) {
+                player.y = canvas.height - 50 - player.height;
+                player.dy = 0;
+                player.grounded = true;
+            }
+
+            // obstacles
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                obstacles[i].x -= 7;
+                
+                // collision
+                if (player.x < obstacles[i].x + obstacles[i].width &&
+                    player.x + player.width > obstacles[i].x &&
+                    player.y < obstacles[i].y + obstacles[i].height &&
+                    player.y + player.height > obstacles[i].y) {
+                    gameActive = false;
+                    alert('게임 오버! 최종 점수: ' + score);
+                    location.reload();
+                }
+
+                if (obstacles[i].x + obstacles[i].width < 0) {
+                    obstacles.splice(i, 1);
+                    score++;
+                    scoreElement.innerText = score;
+                }
+            }
+
+            if (Math.random() < 0.02) spawnObstacle();
+
+            draw();
+            requestAnimationFrame(update);
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Ground
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(0, canvas.height - 50, canvas.width, 50);
+
+            // Player (Caveman style)
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+            // Club (Weapon)
+            ctx.fillStyle = '#5D4037';
+            ctx.fillRect(player.x + 40, player.y + 20, 40, 15);
+
+            // Obstacles (Dinosaurs/Rocks)
+            obstacles.forEach(obs => {
+                ctx.fillStyle = obs.color;
+                ctx.beginPath();
+                ctx.moveTo(obs.x, obs.y + obs.height);
+                ctx.lineTo(obs.x + obs.width/2, obs.y);
+                ctx.lineTo(obs.x + obs.width, obs.y + obs.height);
+                ctx.fill();
+            });
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && player.grounded) {
+                player.dy = -player.jumpForce;
+                player.grounded = false;
+            }
+        });
+
+        update();
+    </script>
+</body>
+</html>
