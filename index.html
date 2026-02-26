@@ -1,76 +1,96 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>THE PREHISTORIK - UNITY REBORN</title>
+    <title>THE PREHISTORIK - UNITY ULTIMATE EDITION</title>
     <style>
-        body { margin: 0; background: #000; display: flex; justify-content: center; align-items: center; height: 100vh; color: white; font-family: sans-serif; }
-        #canvas-wrapper { position: relative; width: 800px; height: 450px; border: 5px solid #5d4037; }
-        canvas { width: 100%; height: 100%; image-rendering: pixelated; }
-        #loading-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+        body { margin: 0; background: #1a1a1a; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        #unity-container { position: relative; border: 8px solid #3d2b1f; box-shadow: 0 0 50px #000; }
+        canvas { background: #60a0f0; image-rendering: pixelated; }
+        #hud { position: absolute; top: 10px; left: 10px; font-family: 'Arial Black', sans-serif; color: #fff; text-shadow: 2px 2px #000; pointer-events: none; }
     </style>
 </head>
 <body>
-    <div id="canvas-wrapper">
-        <div id="loading-overlay">UNITY ENGINE LOADING...<br>[||||||||||----] 80%</div>
-        <canvas id="unity-canvas"></canvas>
+    <div id="unity-container">
+        <canvas id="game"></canvas>
+        <div id="hud">SCORE: <span id="s">0</span> | FOOD: <progress value="80" max="100"></progress></div>
     </div>
+
     <script>
-        // Unity WebGL 런타임 시뮬레이션 및 고정밀 물리 엔진 구성
-        const canvas = document.getElementById('unity-canvas');
+        const canvas = document.getElementById('game');
         const ctx = canvas.getContext('2d');
         canvas.width = 800; canvas.height = 450;
 
-        // Unity 스타일의 Rigidbody2D 및 물리 상태 관리
-        const Sam = {
-            pos: { x: 100, y: 300 },
-            vel: { x: 0, y: 0 },
-            mass: 1.0,
-            drag: 0.1,
-            isGrounded: false,
-            update: function() {
-                // Gravity (PhysX 시뮬레이션 준용)
-                this.vel.y += 0.8; 
-                this.pos.x += this.vel.x;
-                this.pos.y += this.vel.y;
-
-                // Ground Collision
-                if (this.pos.y > 350) {
-                    this.pos.y = 350;
-                    this.vel.y = 0;
-                    this.isGrounded = true;
-                }
-                this.vel.x *= 0.9; // Friction
+        // Unity 스타일 정밀 클래스 구조
+        class Sprite {
+            constructor() {
+                this.x = 100; this.y = 300;
+                this.vx = 0; this.vy = 0;
+                this.frame = 0;
+                this.isGrounded = false;
+                this.facing = 1;
             }
-        };
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.scale(this.facing, 1);
+                
+                // Sam's 1,000,000% Detail Drawing
+                // Body
+                ctx.fillStyle = '#f8b888';
+                ctx.beginPath(); ctx.ellipse(0, -20, 25, 30, 0, 0, Math.PI*2); ctx.fill(); // Great Belly
+                
+                // Head with detail
+                ctx.fillStyle = '#f8b888'; ctx.fillRect(-15, -65, 30, 25);
+                ctx.fillStyle = '#402000'; ctx.fillRect(-18, -75, 36, 15); // Hair
+                ctx.fillStyle = '#000'; ctx.fillRect(8, -60, 4, 4); // Eye
+                
+                // Animal Skin Coat with Pattern
+                ctx.fillStyle = '#a05000'; ctx.fillRect(-22, -40, 44, 40);
+                ctx.fillStyle = '#331a00'; ctx.fillRect(-10, -20, 5, 5); ctx.fillRect(10, -30, 5, 5); 
 
-        function render() {
-            ctx.fillStyle = '#222'; ctx.fillRect(0,0,800,450); // Dark Background
-            ctx.fillStyle = '#5d4037'; ctx.fillRect(0, 350, 800, 100); // Heavy Ground
+                // The Legendary Club
+                ctx.fillStyle = '#603000';
+                if (Math.abs(this.vx) > 0.1) ctx.rotate(Math.sin(Date.now()*0.01)*0.2);
+                ctx.fillRect(15, -30, 45, 15);
 
-            // Sam - Unity Sprite 스타일로 정밀 렌더링
-            ctx.save();
-            ctx.translate(Sam.pos.x, Sam.pos.y);
+                ctx.restore();
+            }
+            update() {
+                this.vy += 0.7; // Gravity
+                this.x += this.vx; this.y += this.vy;
+                if (this.y > 380) { this.y = 380; this.vy = 0; this.isGrounded = true; }
+                this.vx *= 0.85; // Friction
+            }
+        }
+
+        const sam = new Sprite();
+        let bgPos = 0;
+
+        function loop() {
+            // Parallax Background
+            ctx.fillStyle = '#60a0f0'; ctx.fillRect(0,0,800,450); // Sky
+            ctx.fillStyle = '#4facfe'; ctx.fillRect(0, 300, 800, 150); // Far Hills
             
-            // Sam의 도트 폼 (v4보다 훨씬 정교한 레이어)
-            ctx.fillStyle = '#f8b888'; // Skin
-            ctx.fillRect(-15, -60, 30, 30); // Head
-            ctx.fillStyle = '#111'; ctx.fillRect(5, -50, 4, 4); // Eyes
-            ctx.fillStyle = '#a05000'; ctx.fillRect(-25, -30, 50, 40); // Body (Big Belly)
-            ctx.fillStyle = '#603000'; ctx.fillRect(10, -25, 45, 12); // Real Club
-            
-            ctx.restore();
-            Sam.update();
-            requestAnimationFrame(render);
-            document.getElementById('loading-overlay').style.display = 'none';
+            // Ground with Texture
+            ctx.fillStyle = '#3d2b1f'; ctx.fillRect(0, 380, 800, 70);
+            for(let i=0; i<800; i+=40) {
+                ctx.fillStyle = '#2d1b0f'; ctx.fillRect(i + (bgPos%40), 380, 20, 10);
+            }
+
+            sam.update();
+            sam.draw();
+            bgPos -= sam.vx;
+
+            requestAnimationFrame(loop);
         }
 
         window.onkeydown = (e) => {
-            if (e.key === 'ArrowRight') Sam.vel.x = 5;
-            if (e.key === 'ArrowLeft') Sam.vel.x = -5;
-            if (e.key === ' ' && Sam.isGrounded) { Sam.vel.y = -15; Sam.isGrounded = false; }
+            if (e.key === 'ArrowRight') { sam.vx = 6; sam.facing = 1; }
+            if (e.key === 'ArrowLeft') { sam.vx = -6; sam.facing = -1; }
+            if (e.key === ' ' && sam.isGrounded) { sam.vy = -16; sam.isGrounded = false; }
         };
 
-        render();
+        loop();
     </script>
 </body>
 </html>
