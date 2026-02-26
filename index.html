@@ -1,165 +1,167 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-    <title>AI AGENT OS - SN定PLUG 3D EDITION</title>
+    <meta charset="UTF-8">
+    <title>SNAPPLUG 3D - NEXT GEN WORK OS</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;600&display=swap');
-        body { margin: 0; background: #050608; overflow: hidden; font-family: 'Outfit', sans-serif; color: #fff; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono&display=swap');
         
-        /* Snapplug-inspired Glass UI */
-        #top-nav { position: absolute; top: 0; width: 100%; height: 60px; background: rgba(13, 15, 20, 0.8); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; padding: 0 40px; box-sizing: border-box; justify-content: space-between; z-index: 100; }
-        .logo { font-weight: 700; font-size: 22px; letter-spacing: -1px; color: #0084ff; }
-        
-        #main-dashboard { position: absolute; left: 30px; top: 90px; width: 280px; pointer-events: auto; }
-        .card { background: rgba(20, 22, 28, 0.9); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .pulse { width: 10px; height: 10px; background: #00ff88; border-radius: 50%; display: inline-block; margin-right: 10px; box-shadow: 0 0 10px #00ff88; animation: blink 2s infinite; }
-        
-        @keyframes blink { 0% { opacity: 0.3; } 50% { opacity: 1; } 100% { opacity: 0.3; } }
+        :root {
+            --bg: #030407;
+            --card-bg: rgba(13, 16, 23, 0.8);
+            --accent: #0070f3;
+            --border: rgba(255, 255, 255, 0.08);
+            --text-muted: #888;
+        }
 
-        /* Command & Execution Terminal */
-        #terminal { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: 700px; background: rgba(10, 11, 14, 0.95); border: 1px solid #1e2128; border-radius: 12px; padding: 15px; display: flex; align-items: center; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
-        #input-box { flex: 1; background: transparent; border: none; color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 14px; outline: none; margin-left: 15px; }
+        body, html { margin: 0; padding: 0; background: var(--bg); color: white; font-family: 'Inter', sans-serif; overflow: hidden; height: 100%; }
         
-        /* Agent Profiles */
-        #agent-detail { display: none; position: absolute; right: 30px; top: 90px; width: 300px; }
+        /* Glassmorphism Header */
+        header {
+            position: fixed; top: 0; width: 100%; height: 64px;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 32px; box-sizing: border-box;
+            background: rgba(3, 4, 7, 0.7); backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border); z-index: 1000;
+        }
+        .logo { font-weight: 700; font-size: 20px; letter-spacing: -0.5px; display: flex; align-items: center; }
+        .logo span { color: var(--accent); margin-right: 4px; }
         
-        .btn-action { background: #0084ff; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; width: 100%; margin-top: 15px; }
+        /* Sidebar Layout */
+        #main-view { display: flex; height: 100vh; padding-top: 64px; box-sizing: border-box; }
+        aside {
+            width: 280px; padding: 24px; border-right: 1px solid var(--border);
+            background: linear-gradient(180deg, rgba(13, 16, 23, 0.5) 0%, rgba(3, 4, 7, 0) 100%);
+        }
+        .nav-item { padding: 12px 16px; border-radius: 8px; font-size: 14px; color: var(--text-muted); cursor: pointer; transition: 0.2s; margin-bottom: 4px; }
+        .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
+        .nav-item.active { background: rgba(0, 112, 243, 0.1); color: var(--accent); font-weight: 600; }
+
+        /* 3D Canvas Container */
+        #viewport { flex: 1; position: relative; cursor: grab; }
+        #viewport:active { cursor: grabbing; }
+
+        /* Command Bar (Snapplug Copy) */
+        #command-center {
+            position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
+            width: 600px; height: 56px;
+            background: rgba(17, 20, 28, 0.9); border: 1px solid var(--border);
+            border-radius: 14px; display: flex; align-items: center; padding: 0 20px;
+            box-shadow: 0 24px 48px rgba(0,0,0,0.6);
+        }
+        #command-input {
+            flex: 1; background: transparent; border: none; outline: none;
+            color: white; font-size: 15px; margin-left: 12px;
+        }
+        .cmd-icon { color: var(--accent); font-weight: bold; }
+
+        /* Widgets */
+        .widget {
+            background: var(--card-bg); border: 1px solid var(--border);
+            border-radius: 16px; padding: 20px; margin-bottom: 16px;
+        }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #10b981; display: inline-block; margin-right: 8px; box-shadow: 0 0 8px #10b981; }
     </style>
 </head>
 <body>
-    <nav id="top-nav">
-        <div class="logo">SNAPPLUG <span style="color:#fff">3D</span></div>
-        <div style="font-size: 13px; color: #888;">AI AUTOMATION HUB v2.0</div>
-    </nav>
-
-    <div id="main-dashboard">
-        <div class="card">
-            <div style="font-size: 12px; color: #888; margin-bottom: 8px;">SYSTEM STATUS</div>
-            <div style="font-size: 18px; font-weight: 600;"><span class="pulse"></span>AI ENGINES ONLINE</div>
-            <p style="font-size: 13px; color: #aaa; margin-top: 15px;">8 Active Connections (Shopify, Slack, Notion...)</p>
+    <header>
+        <div class="logo"><span>⚡</span> SNAPPLUG <small style="margin-left:8px; font-weight:300; font-size:12px; color:var(--text-muted)">OS</small></div>
+        <div style="display:flex; gap:20px; font-size:14px; color:var(--text-muted)">
+            <span>Docs</span><span>API</span><span style="color:#fff; border:1px solid #444; padding:4px 12px; border-radius:6px">Join Waitlist</span>
         </div>
-        <div class="card" id="agent-list">
-            <div style="font-size: 12px; color: #888; font-weight: 600;">ACTIVE AGENTS</div>
-            <div style="margin-top: 15px; font-size: 14px; color: #0084ff;">● Marketing Expert</div>
-            <div style="margin-top: 10px; font-size: 14px; color: #00ff88;">● Sales Automator</div>
-            <div style="margin-top: 10px; font-size: 14px; color: #ff0088;">● Creative Designer</div>
-        </div>
-    </div>
+    </header>
 
-    <div id="agent-detail" class="card">
-        <h3 id="target-name">Agent Profile</h3>
-        <p id="target-desc" style="font-size: 13px; color: #aaa;"></p>
-        <div style="border-top: 1px solid #333; padding-top: 15px;">
-            <div style="font-size: 11px; color: #888;">CAPABILITIES</div>
-            <div id="caps" style="font-size: 12px; margin-top: 5px; color: #0084ff;">WEB_SEARCH, PDF_GEN, LOGISTICS_API</div>
-        </div>
-        <button class="btn-action">지능형 텍스트 분석 시작</button>
-    </div>
+    <div id="main-view">
+        <aside>
+            <div class="widget">
+                <div style="font-size:11px; color:var(--text-muted); margin-bottom:8px">ENVIRONMENT</div>
+                <div style="font-weight:600"><span class="status-dot"></span>Production Cluster</div>
+            </div>
+            <nav>
+                <div class="nav-item active">Dashboard</div>
+                <div class="nav-item">Workflows</div>
+                <div class="nav-item">AI Agents</div>
+                <div class="nav-item">Connected Plugins</div>
+                <div class="nav-item">Settings</div>
+            </nav>
+        </aside>
 
-    <div id="terminal">
-        <span style="color: #0084ff; font-weight: bold;">AI >> </span>
-        <input type="text" id="input-box" placeholder="명령어를 입력하세요 (예: '마케팅, 어제 Shopify 매출 분석해서 보고해')">
+        <section id="viewport"></section>
+
+        <div id="command-center">
+            <span class="cmd-icon">/</span>
+            <input type="text" id="command-input" placeholder="무엇을 도와드릴까요? (명령어를 입력하세요)">
+            <code style="font-size:10px; color:var(--text-muted); background:#000; padding:2px 6px; border-radius:4px">⌘K</code>
+        </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
+        // --- High Detail 3D Environment ---
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x050608);
         const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        document.body.appendChild(renderer.domElement);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        
+        const viewport = document.getElementById('viewport');
+        renderer.setSize(viewport.clientWidth, viewport.clientHeight);
+        viewport.appendChild(renderer.domElement);
 
-        // Lighting
+        // Lights
         const ambient = new THREE.AmbientLight(0xffffff, 0.4);
         scene.add(ambient);
-        const spot = new THREE.SpotLight(0x0084ff, 1.5);
-        spot.position.set(0, 20, 10);
-        spot.angle = Math.PI/4;
-        spot.penumbra = 0.5;
-        scene.add(spot);
+        const point = new THREE.PointLight(0x0070f3, 2, 50);
+        point.position.set(5, 5, 5);
+        scene.add(point);
 
-        // Modern Workspace Grid
-        const grid = new THREE.GridHelper(100, 40, 0x1e2128, 0x111111);
+        // Grid (Snapplug Style Minimalist)
+        const grid = new THREE.GridHelper(100, 50, 0x111111, 0x080808);
         scene.add(grid);
 
-        // Agent Objects
+        // Core Objects (Physically modeled agents)
         const agents = [];
-        function createAgent(name, x, z, color, desc) {
+        function addAgent(x, z, color, label) {
             const group = new THREE.Group();
             
-            // Base Pedestal
-            const baseGeo = new THREE.CylinderGeometry(1.2, 1.4, 0.2, 32);
-            const baseMat = new THREE.MeshPhongMaterial({ color: 0x1a1c23 });
-            const base = new THREE.Mesh(baseGeo, baseMat);
-            group.add(base);
-
-            // Core - Glowing Sphere
-            const coreGeo = new THREE.SphereGeometry(0.6, 32, 32);
-            const coreMat = new THREE.MeshPhongMaterial({ 
-                color: color, 
-                emissive: color, 
-                emissiveIntensity: 0.5,
-                shininess: 100
-            });
-            const core = new THREE.Mesh(coreGeo, coreMat);
-            core.position.y = 1.2;
-            group.add(core);
-
-            // Hovering Ring
-            const ringGeo = new THREE.TorusGeometry(0.9, 0.05, 16, 100);
-            const ringMat = new THREE.MeshPhongMaterial({ color: color });
+            // Outer Ring (Glassy)
+            const ringGeo = new THREE.TorusGeometry(1.2, 0.02, 16, 100);
+            const ringMat = new THREE.MeshPhongMaterial({ color: color, transparent: true, opacity: 0.5 });
             const ring = new THREE.Mesh(ringGeo, ringMat);
             ring.rotation.x = Math.PI / 2;
-            ring.position.y = 1.2;
             group.add(ring);
-            
-            group.position.set(x, 0, z);
-            group.userData = { name, desc, color, ring };
+
+            // Core Energy
+            const coreGeo = new THREE.SphereGeometry(0.5, 32, 32);
+            const coreMat = new THREE.MeshPhongMaterial({ color: color, emissive: color, emissiveIntensity: 0.5 });
+            const core = new THREE.Mesh(coreGeo, coreMat);
+            group.add(core);
+
+            group.position.set(x, 1.2, z);
             scene.add(group);
-            agents.push(group);
+            agents.push({ group, ring, floatOffset: Math.random() * 10 });
         }
 
-        createAgent("Marketing", -8, -5, 0x0084ff, "글로벌 트렌드 분석 및 SNS 마케팅 자동화 에이전트");
-        createAgent("Sales", 8, -5, 0x00ff88, "물류 API 연동 및 스마트 견적 자동화 에이전트");
-        createAgent("Design", 0, 8, 0xff0088, "AI 기반 비주얼 에셋 및 브랜드 가이드 생성 에이전트");
+        addAgent(-6, -2, 0x0070f3, "Marketing");
+        addAgent(6, -2, 0x10b981, "Sales");
+        addAgent(0, 6, 0xf43f5e, "Logic");
 
-        camera.position.set(0, 12, 28);
+        camera.position.set(0, 8, 20);
         camera.lookAt(0, 0, 0);
-
-        // Mouse Interactivity
-        const raycaster = new THREE.Raycaster();
-        const mouse = new THREE.Vector2();
-
-        window.addEventListener('click', (event) => {
-            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-            raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObjects(agents, true);
-            
-            if (intersects.length > 0) {
-                const target = intersects[0].object.parent;
-                showAgentDetail(target.userData);
-            }
-        });
-
-        function showAgentDetail(data) {
-            document.getElementById('agent-detail').style.display = 'block';
-            document.getElementById('target-name').innerText = data.name + " Agent";
-            document.getElementById('target-name').style.color = '#' + data.color.toString(16).padStart(6, '0');
-            document.getElementById('target-desc').innerText = data.desc;
-        }
 
         function animate() {
             requestAnimationFrame(animate);
             agents.forEach(a => {
-                a.userData.ring.rotation.z += 0.02; // Rotate Ring
-                a.children[1].position.y = 1.2 + Math.sin(Date.now() * 0.002) * 0.1; // Floating Effect
+                a.group.position.y = 1.2 + Math.sin(Date.now() * 0.002 + a.floatOffset) * 0.2;
+                a.ring.rotation.z += 0.01;
             });
             renderer.render(scene, camera);
         }
         animate();
+
+        window.onresize = () => {
+            camera.aspect = viewport.clientWidth / viewport.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(viewport.clientWidth, viewport.clientHeight);
+        };
     </script>
 </body>
 </html>
