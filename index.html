@@ -1,100 +1,138 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>AI SaaS - Smart 3D Office</title>
+    <title>AI AGENT OS - SN定PLUG 3D EDITION</title>
     <style>
-        body { margin: 0; background: #0b0e14; overflow: hidden; font-family: 'Inter', sans-serif; }
-        #canvas-container { width: 100vw; height: 100vh; }
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;600&display=swap');
+        body { margin: 0; background: #050608; overflow: hidden; font-family: 'Outfit', sans-serif; color: #fff; }
         
-        /* SaaS Dashboard UI */
-        #ui-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
-        #sidebar { position: absolute; left: 20px; top: 20px; width: 250px; background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); color: #fff; padding: 20px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); pointer-events: auto; }
+        /* Snapplug-inspired Glass UI */
+        #top-nav { position: absolute; top: 0; width: 100%; height: 60px; background: rgba(13, 15, 20, 0.8); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; padding: 0 40px; box-sizing: border-box; justify-content: space-between; z-index: 100; }
+        .logo { font-weight: 700; font-size: 22px; letter-spacing: -1px; color: #0084ff; }
         
-        /* Floating Chat UI */
-        #chat-window { display: none; position: absolute; right: 30px; bottom: 30px; width: 350px; height: 450px; background: rgba(15, 17, 26, 0.95); border: 1px solid #007bff; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); pointer-events: auto; flex-direction: column; overflow: hidden; }
-        #chat-header { background: #007bff; color: white; padding: 15px; font-weight: bold; display: flex; justify-content: space-between; }
-        #chat-messages { flex: 1; padding: 15px; color: #ddd; font-size: 14px; overflow-y: auto; }
-        #chat-input-area { padding: 10px; background: #222; display: flex; }
-        #chat-input { flex: 1; background: transparent; border: none; color: white; outline: none; }
+        #main-dashboard { position: absolute; left: 30px; top: 90px; width: 280px; pointer-events: auto; }
+        .card { background: rgba(20, 22, 28, 0.9); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .pulse { width: 10px; height: 10px; background: #00ff88; border-radius: 50%; display: inline-block; margin-right: 10px; box-shadow: 0 0 10px #00ff88; animation: blink 2s infinite; }
         
-        .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; background: #007bff; margin-bottom: 10px; }
+        @keyframes blink { 0% { opacity: 0.3; } 50% { opacity: 1; } 100% { opacity: 0.3; } }
+
+        /* Command & Execution Terminal */
+        #terminal { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: 700px; background: rgba(10, 11, 14, 0.95); border: 1px solid #1e2128; border-radius: 12px; padding: 15px; display: flex; align-items: center; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
+        #input-box { flex: 1; background: transparent; border: none; color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 14px; outline: none; margin-left: 15px; }
+        
+        /* Agent Profiles */
+        #agent-detail { display: none; position: absolute; right: 30px; top: 90px; width: 300px; }
+        
+        .btn-action { background: #0084ff; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; width: 100%; margin-top: 15px; }
     </style>
 </head>
 <body>
-    <div id="canvas-container"></div>
-    <div id="ui-overlay">
-        <div id="sidebar">
-            <div class="badge">PLATFORM v1.0 BETA</div>
-            <h1 style="font-size: 20px; margin: 0;">AI Agent Office</h1>
-            <p style="font-size: 12px; color: #888;">지능형 가상 사무실 솔루션</p>
-            <hr style="border: 0.5px solid rgba(255,255,255,0.1); margin: 20px 0;">
-            <div id="active-list">
-                <p style="font-size: 13px; color: #007bff;">● 마케팅 팀 (대기 중)</p>
-                <p style="font-size: 13px; color: #007bff;">● 영업 팀 (업무 중)</p>
-            </div>
-        </div>
+    <nav id="top-nav">
+        <div class="logo">SNAPPLUG <span style="color:#fff">3D</span></div>
+        <div style="font-size: 13px; color: #888;">AI AUTOMATION HUB v2.0</div>
+    </nav>
 
-        <div id="chat-window">
-            <div id="chat-header"><span id="agent-name">Agent Name</span> <button onclick="closeChat()" style="background:none; border:none; color:white; cursor:pointer;">✕</button></div>
-            <div id="chat-messages">안녕하세요! 어떤 업무를 해결해 드릴까요?</div>
-            <div id="chat-input-area">
-                <input type="text" id="chat-input" placeholder="명령어를 입력하세요..." onkeypress="handleChat(event)">
-            </div>
+    <div id="main-dashboard">
+        <div class="card">
+            <div style="font-size: 12px; color: #888; margin-bottom: 8px;">SYSTEM STATUS</div>
+            <div style="font-size: 18px; font-weight: 600;"><span class="pulse"></span>AI ENGINES ONLINE</div>
+            <p style="font-size: 13px; color: #aaa; margin-top: 15px;">8 Active Connections (Shopify, Slack, Notion...)</p>
         </div>
+        <div class="card" id="agent-list">
+            <div style="font-size: 12px; color: #888; font-weight: 600;">ACTIVE AGENTS</div>
+            <div style="margin-top: 15px; font-size: 14px; color: #0084ff;">● Marketing Expert</div>
+            <div style="margin-top: 10px; font-size: 14px; color: #00ff88;">● Sales Automator</div>
+            <div style="margin-top: 10px; font-size: 14px; color: #ff0088;">● Creative Designer</div>
+        </div>
+    </div>
+
+    <div id="agent-detail" class="card">
+        <h3 id="target-name">Agent Profile</h3>
+        <p id="target-desc" style="font-size: 13px; color: #aaa;"></p>
+        <div style="border-top: 1px solid #333; padding-top: 15px;">
+            <div style="font-size: 11px; color: #888;">CAPABILITIES</div>
+            <div id="caps" style="font-size: 12px; margin-top: 5px; color: #0084ff;">WEB_SEARCH, PDF_GEN, LOGISTICS_API</div>
+        </div>
+        <button class="btn-action">지능형 텍스트 분석 시작</button>
+    </div>
+
+    <div id="terminal">
+        <span style="color: #0084ff; font-weight: bold;">AI >> </span>
+        <input type="text" id="input-box" placeholder="명령어를 입력하세요 (예: '마케팅, 어제 Shopify 매출 분석해서 보고해')">
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x0b0e14);
-        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        scene.background = new THREE.Color(0x050608);
+        const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        document.getElementById('canvas-container').appendChild(renderer.domElement);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.body.appendChild(renderer.domElement);
 
-        scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-        const pointLight = new THREE.PointLight(0x007bff, 1, 50);
-        pointLight.position.set(0, 10, 0);
-        scene.add(pointLight);
+        // Lighting
+        const ambient = new THREE.AmbientLight(0xffffff, 0.4);
+        scene.add(ambient);
+        const spot = new THREE.SpotLight(0x0084ff, 1.5);
+        spot.position.set(0, 20, 10);
+        spot.angle = Math.PI/4;
+        spot.penumbra = 0.5;
+        scene.add(spot);
 
-        // Floor (Modern Grid)
-        const grid = new THREE.GridHelper(100, 50, 0x007bff, 0x111111);
+        // Modern Workspace Grid
+        const grid = new THREE.GridHelper(100, 40, 0x1e2128, 0x111111);
         scene.add(grid);
 
-        // Office Hub Structure
-        const hubGeo = new THREE.BoxGeometry(10, 0.2, 10);
-        const hubMat = new THREE.MeshPhongMaterial({ color: 0x111111 });
-        const hub = new THREE.Mesh(hubGeo, hubMat);
-        scene.add(hub);
-
-        // Agents
+        // Agent Objects
         const agents = [];
-        function createSaaSAgent(name, x, z, color) {
+        function createAgent(name, x, z, color, desc) {
             const group = new THREE.Group();
-            const body = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 2, 32), new THREE.MeshPhongMaterial({ color: color }));
-            group.add(body);
-            const head = new THREE.Mesh(new THREE.SphereGeometry(0.5), new THREE.MeshPhongMaterial({ color: 0xeeeeee }));
-            head.position.y = 1.5;
-            group.add(head);
             
-            group.position.set(x, 1, z);
-            group.userData = { name: name, role: name + " AI Expert" };
+            // Base Pedestal
+            const baseGeo = new THREE.CylinderGeometry(1.2, 1.4, 0.2, 32);
+            const baseMat = new THREE.MeshPhongMaterial({ color: 0x1a1c23 });
+            const base = new THREE.Mesh(baseGeo, baseMat);
+            group.add(base);
+
+            // Core - Glowing Sphere
+            const coreGeo = new THREE.SphereGeometry(0.6, 32, 32);
+            const coreMat = new THREE.MeshPhongMaterial({ 
+                color: color, 
+                emissive: color, 
+                emissiveIntensity: 0.5,
+                shininess: 100
+            });
+            const core = new THREE.Mesh(coreGeo, coreMat);
+            core.position.y = 1.2;
+            group.add(core);
+
+            // Hovering Ring
+            const ringGeo = new THREE.TorusGeometry(0.9, 0.05, 16, 100);
+            const ringMat = new THREE.MeshPhongMaterial({ color: color });
+            const ring = new THREE.Mesh(ringGeo, ringMat);
+            ring.rotation.x = Math.PI / 2;
+            ring.position.y = 1.2;
+            group.add(ring);
+            
+            group.position.set(x, 0, z);
+            group.userData = { name, desc, color, ring };
             scene.add(group);
             agents.push(group);
         }
 
-        createSaaSAgent("Marketing", -5, -5, 0x007bff);
-        createSaaSAgent("Sales", 5, -5, 0x00ff88);
-        createSaaSAgent("Design", -5, 5, 0xff0088);
+        createAgent("Marketing", -8, -5, 0x0084ff, "글로벌 트렌드 분석 및 SNS 마케팅 자동화 에이전트");
+        createAgent("Sales", 8, -5, 0x00ff88, "물류 API 연동 및 스마트 견적 자동화 에이전트");
+        createAgent("Design", 0, 8, 0xff0088, "AI 기반 비주얼 에셋 및 브랜드 가이드 생성 에이전트");
 
-        camera.position.set(0, 10, 20);
-        camera.lookAt(0,0,0);
+        camera.position.set(0, 12, 28);
+        camera.lookAt(0, 0, 0);
 
-        // Clicking Logic (Raycasting)
+        // Mouse Interactivity
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
 
-        window.addEventListener('mousedown', (event) => {
+        window.addEventListener('click', (event) => {
             mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
             mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
             raycaster.setFromCamera(mouse, camera);
@@ -102,35 +140,23 @@
             
             if (intersects.length > 0) {
                 const target = intersects[0].object.parent;
-                openChat(target.userData.name);
+                showAgentDetail(target.userData);
             }
         });
 
-        function openChat(name) {
-            document.getElementById('chat-window').style.display = 'flex';
-            document.getElementById('agent-name').innerText = name + " AI Agent";
-            document.getElementById('chat-messages').innerHTML = "<b>" + name + " 에이전트</b>가 연결되었습니다. 어떤 업무를 처리할까요?";
-        }
-
-        function closeChat() {
-            document.getElementById('chat-window').style.display = 'none';
-        }
-
-        function handleChat(e) {
-            if (e.key === 'Enter') {
-                const input = document.getElementById('chat-input');
-                document.getElementById('chat-messages').innerHTML += "<br><span style='color:#007bff'>나:</span> " + input.value;
-                const cmd = input.value;
-                input.value = "";
-                // Here we will connect real AI backend
-                setTimeout(() => {
-                    document.getElementById('chat-messages').innerHTML += "<br><b>AI:</b> 명령을 접수했습니다. 업무를 분석 중입니다...";
-                }, 1000);
-            }
+        function showAgentDetail(data) {
+            document.getElementById('agent-detail').style.display = 'block';
+            document.getElementById('target-name').innerText = data.name + " Agent";
+            document.getElementById('target-name').style.color = '#' + data.color.toString(16).padStart(6, '0');
+            document.getElementById('target-desc').innerText = data.desc;
         }
 
         function animate() {
             requestAnimationFrame(animate);
+            agents.forEach(a => {
+                a.userData.ring.rotation.z += 0.02; // Rotate Ring
+                a.children[1].position.y = 1.2 + Math.sin(Date.now() * 0.002) * 0.1; // Floating Effect
+            });
             renderer.render(scene, camera);
         }
         animate();
