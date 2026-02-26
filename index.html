@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>THE PREHISTORIK - PHASER ENGINE V4</title>
+    <title>THE PREHISTORIK - FIXED V4</title>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
     <style>
-        body { margin: 0; background-color: #000; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        canvas { box-shadow: 0 0 30px rgba(0,0,0,1); image-rendering: pixelated; }
+        body { margin: 0; background: #000; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        #game-container { border: 4px solid #3d2b1f; }
     </style>
 </head>
 <body>
@@ -13,17 +13,16 @@
     <script>
         const config = {
             type: Phaser.AUTO,
-            width: 320,
-            height: 200,
+            width: 800,
+            height: 400,
             parent: 'game-container',
+            backgroundColor: '#60a0f0',
             pixelArt: true,
-            zoom: 3,
             physics: {
                 default: 'arcade',
-                arcade: { gravity: { y: 600 }, debug: false }
+                arcade: { gravity: { y: 800 }, debug: false }
             },
             scene: {
-                preload: preload,
                 create: create,
                 update: update
             }
@@ -32,46 +31,43 @@
         const game = new Phaser.Game(config);
         let player;
         let cursors;
-        let monsters;
-
-        function preload() {
-            // 원작 감성의 픽셀 데이터 생성 (임시 대체지만 고퀄리티 유지 시도)
-            this.load.crossOrigin = 'anonymous';
-            // 실제 Sam의 스프라이트 시트가 올라가야 하는 자리
-        }
 
         function create() {
-            // 배경 (동굴)
-            this.add.rectangle(0, 180, 640, 40, 0x4d3319).setOrigin(0);
+            // 바닥 생성
+            const platforms = this.physics.add.staticGroup();
+            const ground = this.add.rectangle(400, 380, 800, 40, 0x4d3319);
+            platforms.add(ground);
+
+            // 주인공 Sam - 이번에는 간단한 그래픽 대신 직관적인 도형으로 먼저 띄웁니다 (검은 화면 방지)
+            player = this.add.container(100, 300);
+            const body = this.add.rectangle(0, 0, 40, 60, 0xa05000); // 가죽옷
+            const head = this.add.rectangle(0, -40, 30, 30, 0xf8b888); // 얼굴
+            const eyes = this.add.rectangle(8, -45, 5, 5, 0x000000); // 눈
+            const club = this.add.rectangle(25, -10, 40, 10, 0x603000); // 몽둥이
             
-            // 주인공 Sam 생성
-            player = this.physics.add.sprite(50, 140);
-            player.setCollideWorldBounds(true);
+            player.add([body, head, eyes, club]);
             
-            // Sam의 도트 그래픽 구현 (Rectangle 대신 시각적 보완물)
-            const graphics = this.make.graphics({ x: 0, y: 0, add: false });
-            graphics.fillStyle(0xf8b888, 1);
-            graphics.fillRect(4, 0, 16, 16); // 머리
-            graphics.fillStyle(0x804000, 1);
-            graphics.fillRect(4, 16, 16, 24); // 몸
-            
-            player.setTexture(player.generateTexture('sam-idle', 24, 40));
+            // 물리 적용
+            this.physics.add.existing(player);
+            player.body.setCollideWorldBounds(true);
+            this.physics.add.collider(player, platforms);
 
             cursors = this.input.keyboard.createCursorKeys();
-            this.input.keyboard.on('keydown-SPACE', () => {
-                if (player.body.onFloor()) player.setVelocityY(-250);
-            });
         }
 
         function update() {
             if (cursors.left.isDown) {
-                player.setVelocityX(-100);
-                player.setFlipX(true);
+                player.body.setVelocityX(-160);
+                player.setScale(-1, 1); // 좌로 뒤집기
             } else if (cursors.right.isDown) {
-                player.setVelocityX(100);
-                player.setFlipX(false);
+                player.body.setVelocityX(160);
+                player.setScale(1, 1); // 우로 정렬
             } else {
-                player.setVelocityX(0);
+                player.body.setVelocityX(0);
+            }
+
+            if (cursors.up.isDown && player.body.touching.down) {
+                player.body.setVelocityY(-400);
             }
         }
     </script>
