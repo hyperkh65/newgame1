@@ -1,96 +1,87 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>THE PREHISTORIK - UNITY ULTIMATE EDITION</title>
+    <title>THE PREHISTORIK - 3D WORLD EDITION</title>
     <style>
-        body { margin: 0; background: #1a1a1a; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
-        #unity-container { position: relative; border: 8px solid #3d2b1f; box-shadow: 0 0 50px #000; }
-        canvas { background: #60a0f0; image-rendering: pixelated; }
-        #hud { position: absolute; top: 10px; left: 10px; font-family: 'Arial Black', sans-serif; color: #fff; text-shadow: 2px 2px #000; pointer-events: none; }
+        body { margin: 0; background: #000; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; perspective: 1000px; }
+        #game-viewport { position: relative; width: 800px; height: 450px; background: linear-gradient(#4facfe, #00f2fe); border: 8px solid #2d1b0f; transform-style: preserve-3d; }
+        canvas { width: 100%; height: 100%; image-rendering: pixelated; }
     </style>
 </head>
 <body>
-    <div id="unity-container">
-        <canvas id="game"></canvas>
-        <div id="hud">SCORE: <span id="s">0</span> | FOOD: <progress value="80" max="100"></progress></div>
+    <div id="game-viewport">
+        <canvas id="c"></canvas>
     </div>
 
     <script>
-        const canvas = document.getElementById('game');
+        const canvas = document.getElementById('c');
         const ctx = canvas.getContext('2d');
         canvas.width = 800; canvas.height = 450;
 
-        // Unity 스타일 정밀 클래스 구조
-        class Sprite {
-            constructor() {
-                this.x = 100; this.y = 300;
-                this.vx = 0; this.vy = 0;
-                this.frame = 0;
-                this.isGrounded = false;
-                this.facing = 1;
-            }
-            draw() {
-                ctx.save();
-                ctx.translate(this.x, this.y);
-                ctx.scale(this.facing, 1);
-                
-                // Sam's 1,000,000% Detail Drawing
-                // Body
-                ctx.fillStyle = '#f8b888';
-                ctx.beginPath(); ctx.ellipse(0, -20, 25, 30, 0, 0, Math.PI*2); ctx.fill(); // Great Belly
-                
-                // Head with detail
-                ctx.fillStyle = '#f8b888'; ctx.fillRect(-15, -65, 30, 25);
-                ctx.fillStyle = '#402000'; ctx.fillRect(-18, -75, 36, 15); // Hair
-                ctx.fillStyle = '#000'; ctx.fillRect(8, -60, 4, 4); // Eye
-                
-                // Animal Skin Coat with Pattern
-                ctx.fillStyle = '#a05000'; ctx.fillRect(-22, -40, 44, 40);
-                ctx.fillStyle = '#331a00'; ctx.fillRect(-10, -20, 5, 5); ctx.fillRect(10, -30, 5, 5); 
+        const state = { x: 400, y: 0, z: 0, vx: 0, vy: 0, frame: 0 };
+        const groundY = 320;
 
-                // The Legendary Club
-                ctx.fillStyle = '#603000';
-                if (Math.abs(this.vx) > 0.1) ctx.rotate(Math.sin(Date.now()*0.01)*0.2);
-                ctx.fillRect(15, -30, 45, 15);
+        function draw3D() {
+            ctx.clearRect(0,0,800,450);
+            
+            // 1. 3D 바닥 (원근법 적용)
+            ctx.fillStyle = '#3d2b1f';
+            ctx.beginPath();
+            ctx.moveTo(0, groundY);
+            ctx.lineTo(800, groundY);
+            ctx.lineTo(1200, 600);
+            ctx.lineTo(-400, 600);
+            ctx.fill();
 
-                ctx.restore();
+            // 바닥 그리드 (입체감 강화)
+            ctx.strokeStyle = '#4d3319';
+            for(let i=-1000; i<2000; i+=100) {
+                let xOff = (i - state.x * 0.5) % 1000;
+                ctx.beginPath();
+                ctx.moveTo(400 + xOff/4, groundY);
+                ctx.lineTo(400 + xOff, 600);
+                ctx.stroke();
             }
-            update() {
-                this.vy += 0.7; // Gravity
-                this.x += this.vx; this.y += this.vy;
-                if (this.y > 380) { this.y = 380; this.vy = 0; this.isGrounded = true; }
-                this.vx *= 0.85; // Friction
-            }
+
+            // 2. Sam 애니메이션 (3D 위치 감안)
+            const samScale = 0.8 + (state.y * 0.001);
+            ctx.save();
+            ctx.translate(400, groundY + state.y);
+            ctx.scale(samScale * (state.vx < 0 ? -1 : 1), samScale);
+
+            // Shadow (3D 입체감의 핵심)
+            ctx.fillStyle = 'rgba(0,0,0,0.3)';
+            ctx.beginPath(); ctx.ellipse(0, 40, 30, 10, 0,0,Math.PI*2); ctx.fill();
+
+            // Sam Main
+            ctx.fillStyle = '#f8b888';
+            ctx.beginPath(); ctx.ellipse(0, 0, 25, 35, 0,0,Math.PI*2); ctx.fill(); // Belly
+            ctx.fillStyle = '#a05000'; ctx.fillRect(-22, -20, 44, 45); // Clothes
+            ctx.fillStyle = '#f8b888'; ctx.fillRect(-15, -60, 30, 30); // Head
+            ctx.fillStyle = '#603000'; ctx.fillRect(10, -20, 50, 15); // Club
+            
+            ctx.restore();
         }
 
-        const sam = new Sprite();
-        let bgPos = 0;
+        function update() {
+            state.frame++;
+            state.x += state.vx;
+            state.y += state.vy;
+            if (state.y < 0) state.vy += 0.8; // Gravity
+            else { state.y = 0; state.vy = 0; }
+            state.vx *= 0.9;
 
-        function loop() {
-            // Parallax Background
-            ctx.fillStyle = '#60a0f0'; ctx.fillRect(0,0,800,450); // Sky
-            ctx.fillStyle = '#4facfe'; ctx.fillRect(0, 300, 800, 150); // Far Hills
-            
-            // Ground with Texture
-            ctx.fillStyle = '#3d2b1f'; ctx.fillRect(0, 380, 800, 70);
-            for(let i=0; i<800; i+=40) {
-                ctx.fillStyle = '#2d1b0f'; ctx.fillRect(i + (bgPos%40), 380, 20, 10);
-            }
-
-            sam.update();
-            sam.draw();
-            bgPos -= sam.vx;
-
-            requestAnimationFrame(loop);
+            draw3D();
+            requestAnimationFrame(update);
         }
 
         window.onkeydown = (e) => {
-            if (e.key === 'ArrowRight') { sam.vx = 6; sam.facing = 1; }
-            if (e.key === 'ArrowLeft') { sam.vx = -6; sam.facing = -1; }
-            if (e.key === ' ' && sam.isGrounded) { sam.vy = -16; sam.isGrounded = false; }
+            if (e.key === 'ArrowRight') state.vx = 8;
+            if (e.key === 'ArrowLeft') state.vx = -8;
+            if (e.key === ' ' && state.y === 0) state.vy = -15;
         };
 
-        loop();
+        update();
     </script>
 </body>
 </html>
