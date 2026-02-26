@@ -1,102 +1,79 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>THE PREHISTORIK - 1,000,000% LEGACY</title>
+    <title>THE PREHISTORIK - PHASER ENGINE V4</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-        body { margin: 0; background: #000; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
-        #game-container { position: relative; width: 640px; height: 400px; outline: 10px solid #3d2b1f; }
-        canvas { width: 100%; height: 100%; image-rendering: pixelated; background: #60a0f0; }
-        #ui-layer { position: absolute; top: 0; left: 0; width: 100%; color: #fff; font-family: 'Press Start 2P', cursive; padding: 10px; pointer-events: none; }
+        body { margin: 0; background-color: #000; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        canvas { box-shadow: 0 0 30px rgba(0,0,0,1); image-rendering: pixelated; }
     </style>
 </head>
 <body>
-    <div id="game-container">
-        <div id="ui-layer">
-            <div style="display:flex; justify-content: space-between;">
-                <span>FOOD: [####------]</span>
-                <span>SCORE: 004850</span>
-            </div>
-        </div>
-        <canvas id="c"></canvas>
-    </div>
-
+    <div id="game-container"></div>
     <script>
-        const c = document.getElementById('c');
-        const ctx = c.getContext('2d');
-        c.width = 320; c.height = 200; // 원작의 저해상도 도트 감성
-
-        const state = { frame: 0, x: 20, y: 140, jumping: false, dy: 0, attacking: 0 };
-        
-        // 원작 주인공 Sam의 도트 렌더링 (단순 사각형 탈피)
-        function drawSam(x, y, frame) {
-            ctx.save();
-            ctx.translate(x, y);
-            
-            // 배 나온 원시인 실루엣 (픽셀 드로잉)
-            ctx.fillStyle = '#f8b888'; // 피부색
-            ctx.fillRect(8, 0, 12, 10); // 머리
-            ctx.fillStyle = 'black';
-            ctx.fillRect(16, 2, 2, 2); // 눈
-            
-            ctx.fillStyle = '#804000'; // 머리카락
-            ctx.fillRect(6, -2, 16, 4);
-            
-            ctx.fillStyle = '#a05000'; // 가죽옷 (호피무늬 느낌)
-            ctx.fillRect(4, 10, 20, 25);
-            ctx.fillStyle = '#402000';
-            ctx.fillRect(8, 15, 4, 3); // 무늬 1
-            ctx.fillRect(16, 20, 4, 3); // 무늬 2
-
-            // 몽둥이 (진짜 '고인돌' 스타일)
-            ctx.fillStyle = '#603000';
-            if (state.attacking > 0) {
-                ctx.fillRect(20, 15, 20, 8); // 공격 시 앞쪽
-                state.attacking--;
-            } else {
-                ctx.fillRect(2, 5, 6, 20); // 짊어진 몽둥이
+        const config = {
+            type: Phaser.AUTO,
+            width: 320,
+            height: 200,
+            parent: 'game-container',
+            pixelArt: true,
+            zoom: 3,
+            physics: {
+                default: 'arcade',
+                arcade: { gravity: { y: 600 }, debug: false }
+            },
+            scene: {
+                preload: preload,
+                create: create,
+                update: update
             }
-            
-            // 다리 (프레임에 따른 애니메이션)
-            ctx.fillStyle = '#f8b888';
-            let walk = Math.sin(frame * 0.2) * 4;
-            ctx.fillRect(6, 35, 6, 8 + walk);
-            ctx.fillRect(16, 35, 6, 8 - walk);
-
-            ctx.restore();
-        }
-
-        function loop() {
-            state.frame++;
-            ctx.clearRect(0, 0, 320, 200);
-
-            // 배경: 동굴 바닥과 벽면 (패턴)
-            ctx.fillStyle = '#402000'; // 바닥
-            ctx.fillRect(0, 180, 320, 20);
-            
-            // 공중 고기 아이템 (아이콘)
-            ctx.fillStyle = '#ff8080';
-            ctx.beginPath();
-            ctx.arc(160 + Math.sin(state.frame*0.05)*100, 100, 8, 0, 7);
-            ctx.fill();
-
-            // 중력 및 이동
-            if (state.jumping) {
-                state.y += state.dy;
-                state.dy += 0.8;
-                if (state.y >= 140) { state.y = 140; state.jumping = false; }
-            }
-
-            drawSam(state.x, state.y, state.frame);
-            requestAnimationFrame(loop);
-        }
-
-        window.onkeydown = (e) => {
-            if (e.code === 'Space' && !state.jumping) { state.dy = -10; state.jumping = true; }
-            if (e.code === 'KeyZ') { state.attacking = 10; }
         };
 
-        loop();
+        const game = new Phaser.Game(config);
+        let player;
+        let cursors;
+        let monsters;
+
+        function preload() {
+            // 원작 감성의 픽셀 데이터 생성 (임시 대체지만 고퀄리티 유지 시도)
+            this.load.crossOrigin = 'anonymous';
+            // 실제 Sam의 스프라이트 시트가 올라가야 하는 자리
+        }
+
+        function create() {
+            // 배경 (동굴)
+            this.add.rectangle(0, 180, 640, 40, 0x4d3319).setOrigin(0);
+            
+            // 주인공 Sam 생성
+            player = this.physics.add.sprite(50, 140);
+            player.setCollideWorldBounds(true);
+            
+            // Sam의 도트 그래픽 구현 (Rectangle 대신 시각적 보완물)
+            const graphics = this.make.graphics({ x: 0, y: 0, add: false });
+            graphics.fillStyle(0xf8b888, 1);
+            graphics.fillRect(4, 0, 16, 16); // 머리
+            graphics.fillStyle(0x804000, 1);
+            graphics.fillRect(4, 16, 16, 24); // 몸
+            
+            player.setTexture(player.generateTexture('sam-idle', 24, 40));
+
+            cursors = this.input.keyboard.createCursorKeys();
+            this.input.keyboard.on('keydown-SPACE', () => {
+                if (player.body.onFloor()) player.setVelocityY(-250);
+            });
+        }
+
+        function update() {
+            if (cursors.left.isDown) {
+                player.setVelocityX(-100);
+                player.setFlipX(true);
+            } else if (cursors.right.isDown) {
+                player.setVelocityX(100);
+                player.setFlipX(false);
+            } else {
+                player.setVelocityX(0);
+            }
+        }
     </script>
 </body>
 </html>
